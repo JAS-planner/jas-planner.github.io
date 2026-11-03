@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>JAS Classroom Test</title>
+<link rel="icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Classroom test: connect card, a result summary, then one card per class with its assignments */
+:root{
+  --bg:#05080a; --surface:#0b120f; --surface-2:#121c17; --line:#1d2a23; --glass:rgba(13,20,17,.68);
+  --fg:#ecf6f0; --muted:#8ea69a; --green:#2bff88; --green-strong:#8dffc0; --glow:rgba(43,255,136,.45); --on-green:#02130a;
+  --warn:#ffc56b; --bad:#ff7a70;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --body:"Figtree","Segoe UI",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);background-image:radial-gradient(60rem 38rem at 88% -8%,rgba(43,255,136,.1),transparent 62%);background-attachment:fixed;color:var(--fg);font:15px/1.55 var(--body);min-height:100vh}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;letter-spacing:-.02em}
+button,input{font:inherit}
+.wrap{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+.btn{border:0;border-radius:10px;padding:.65rem 1.1rem;font-weight:600;background:var(--green);color:var(--on-green);cursor:pointer;box-shadow:0 0 0 1px rgba(43,255,136,.55),0 10px 30px -12px var(--glow)}
+.btn:hover{background:var(--green-strong)}
+.btn.ghost{background:rgba(255,255,255,.03);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+input{width:100%;padding:.6rem .75rem;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.035);color:var(--fg);font-family:var(--mono);font-size:.82rem}
+input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(43,255,136,.16)}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.panel{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:16px}
+.eyebrow{font:700 .7rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--green);display:inline-flex;gap:.5rem;align-items:center}
+.eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+.muted{color:var(--muted)}
+h1{font-size:clamp(1.8rem,5vw,2.6rem);margin:.5rem 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.row input{flex:1;min-width:200px}
+#status{margin:.8rem 0 0;font-size:.92rem;min-height:1.4em}
+#status.bad{color:var(--bad)} #status.ok{color:var(--green)}
+.checks{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.checks li{display:flex;gap:10px;align-items:flex-start}
+.checks .ic{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.8rem}
+.checks .pass .ic{background:rgba(43,255,136,.15);color:var(--green)}
+.checks .fail .ic{background:rgba(255,122,112,.15);color:var(--bad)}
+.checks .skip .ic{background:rgba(255,255,255,.06);color:var(--muted)}
+.course h3{font-size:1.15rem}
+.course .meta{font-size:.85rem;color:var(--muted);margin-top:2px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.tag{font:600 .72rem var(--mono);padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.list{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px}
+.list li{display:flex;justify-content:space-between;gap:12px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:.9rem}
+.list li span:first-child{min-width:0;overflow-wrap:anywhere}
+.due{flex:none;font:500 .78rem var(--mono);color:var(--muted);white-space:nowrap}
+.due.soon{color:var(--warn)} .due.past{color:var(--bad)}
+details summary{cursor:pointer;color:var(--muted);font-size:.88rem;margin-top:8px}
+ol.steps{padding-left:1.2rem;margin:.6rem 0 0;display:grid;gap:4px;font-size:.92rem}
+a{color:var(--green-strong)}
+code{font-family:var(--mono);font-size:.85em;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:5px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <span class="eyebrow">JAS · test only</span>
+  <h1>Google Classroom connection test</h1>
+  <p class="muted">Checks whether JAS can read your Google Classroom. It only reads: your classes, assignments with due dates, announcements and materials. Nothing is saved, and nothing is posted to Classroom. The results stay in this browser tab.</p>
+
+  <section class="panel" id="setup">
+    <h2 style="font-size:1.1rem">1. Google Client ID</h2>
+    <p class="muted" style="margin:.3rem 0 0;font-size:.9rem">Paste the Client ID from Google Cloud. It ends in <code>.apps.googleusercontent.com</code>. It is not a secret.</p>
+    <div class="row"><input id="cid" placeholder="123456789-abc.apps.googleusercontent.com" autocomplete="off" aria-label="Google Client ID"><button class="btn ghost" id="save">Save</button></div>
+  </section>
+
+  <section class="panel">
+    <h2 style="font-size:1.1rem">2. Connect</h2>
+    <p class="muted" style="margin:.3rem 0 0;font-size:.9rem">Sign in with the Google account you use for Classroom. If Google shows "Google hasn't verified this app", press <b>Continue</b>. That is normal while JAS is in testing.</p>
+    <div class="row"><button class="btn" id="go">Connect Google Classroom</button></div>
+    <p id="status" role="status"></p>
+  </section>
+
+  <section class="panel" id="report" hidden>
+    <h2 style="font-size:1.1rem">Result</h2>
+    <ul class="checks" id="checks" style="margin-top:12px"></ul>
+  </section>
+
+  <div id="courses"></div>
+</main>
+
+<script>
+const SCOPES = [
+  'https://www.googleapis.com/auth/classroom.courses.readonly',
+  'https://www.googleapis.com/auth/classroom.coursework.me.readonly',
+  'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
+  'https://www.googleapis.com/auth/classroom.announcements.readonly'
+].join(' ');
+const API = 'https://classroom.googleapis.com/v1/';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = { get(k){ try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} } };
+
+$('#cid').value = store.get('jas_gcid');
+$('#save').onclick = () => { store.set('jas_gcid', $('#cid').value.trim()); status('Saved.', 'ok'); };
+function status(t, kind){ const s=$('#status'); s.textContent=t; s.className=kind||''; }
+
+let gisReady = null;
+function loadGis(){
+  return gisReady ||= new Promise((ok, no) => {
+    const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+    s.onload = ok; s.onerror = () => { gisReady = null; no(new Error('gis')); }; document.head.appendChild(s);
+  });
+}
+
+async function api(token, path){
+  const r = await fetch(API + path, { headers: { Authorization: 'Bearer ' + token } });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.error?.message || ('HTTP ' + r.status)); e.status = r.status; e.reason = j.error?.status; throw e; }
+  return j;
+}
+async function all(token, path, key){
+  let out = [], page = '';
+  for (let i = 0; i < 10; i++) {
+    const j = await api(token, path + (path.includes('?') ? '&' : '?') + 'pageSize=100' + (page ? '&pageToken=' + page : ''));
+    out = out.concat(j[key] || []); page = j.nextPageToken; if (!page) break;
+  }
+  return out;
+}
+function dueOf(w){
+  if (!w.dueDate) return null;
+  const d = w.dueDate, t = w.dueTime || {};
+  return new Date(Date.UTC(d.year, d.month - 1, d.day, t.hours ?? 23, t.minutes ?? 59));
+}
+function fmtDue(dt){
+  if (!dt) return { text: 'No due date', cls: '' };
+  const h = (dt - Date.now()) / 36e5;
+  const text = dt.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  return { text, cls: h < 0 ? 'past' : h < 48 ? 'soon' : '' };
+}
+function check(kind, text){ $('#checks').insertAdjacentHTML('beforeend', `<li class="${kind}"><span class="ic">${kind==='pass'?'✓':kind==='fail'?'✕':'–'}</span><span>${text}</span></li>`); }
+
+function explain(e){
+  if (e.status === 403 && /has not been used|is disabled|SERVICE_DISABLED/i.test(e.message + ' ' + e.reason)) return 'The Classroom API is not turned on in your Google Cloud project. Turn on "Google Classroom API" there, wait a minute, and try again.';
+  if (e.status === 403) return 'Google refused access (' + e.message + '). Your school may block outside apps for your account.';
+  if (e.status === 401) return 'The sign-in expired. Press Connect again.';
+  return 'Could not reach Google Classroom: ' + e.message;
+}
+
+$('#go').onclick = async () => {
+  const cid = $('#cid').value.trim();
+  if (!/\.apps\.googleusercontent\.com$/.test(cid)) { status('Paste your Google Client ID in step 1 first.', 'bad'); $('#cid').focus(); return; }
+  store.set('jas_gcid', cid);
+  status('Opening Google sign-in…');
+  try { await loadGis(); } catch (e) { status('Could not load Google sign-in. Check your connection or ad blocker.', 'bad'); return; }
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: cid, scope: SCOPES,
+    callback: r => { if (r.error) { status(r.error === 'access_denied' ? 'Sign-in was cancelled or not allowed. If you used a school account, your school may block outside apps.' : 'Google sign-in error: ' + r.error, 'bad'); return; } run(r.access_token, r.scope || ''); },
+    error_callback: e => status(e.type === 'popup_closed' ? 'The Google window was closed before finishing.' : e.type === 'popup_failed_to_open' ? 'Your browser blocked the Google window. Allow pop-ups for this site and try again.' : 'Google sign-in error: ' + (e.message || e.type), 'bad')
+  });
+  client.requestAccessToken();
+};
+
+async function run(token, granted){
+  $('#go').disabled = true; $('#checks').innerHTML = ''; $('#courses').innerHTML = ''; $('#report').hidden = false;
+  status('Connected. Reading your classes…');
+  check('pass', 'Signed in with Google and access was granted.');
+  const missing = SCOPES.split(' ').filter(s => !granted.split(' ').includes(s)).map(s => s.split('.').slice(-2).join('.'));
+  if (missing.length) check('fail', 'Some permissions were not ticked: ' + esc(missing.join(', ')) + '. Press Connect again and tick every box.');
+  let courses;
+  try { courses = await all(token, 'courses?courseStates=ACTIVE', 'courses'); }
+  catch (e) { check('fail', esc(explain(e))); status('The test stopped.', 'bad'); $('#go').disabled = false; return; }
+  if (!courses.length) { check('skip', 'Connected, but this account has no active classes. Try the account you use for Classroom.'); status('Done.', 'ok'); $('#go').disabled = false; return; }
+  check('pass', `Found ${courses.length} active class${courses.length === 1 ? '' : 'es'}.`);
+  let works = 0, dated = 0, posts = 0, mats = 0; const errs = new Set();
+  for (const c of courses) {
+    status(`Reading ${c.name}…`);
+    const [w, a, m] = await Promise.all([
+      all(token, `courses/${c.id}/courseWork?orderBy=dueDate%20desc`, 'courseWork').catch(e => { errs.add(explain(e)); return []; }),
+      all(token, `courses/${c.id}/announcements`, 'announcements').catch(e => { errs.add(explain(e)); return []; }),
+      all(token, `courses/${c.id}/courseWorkMaterials`, 'courseWorkMaterial').catch(e => { errs.add(explain(e)); return []; })
+    ]);
+    works += w.length; posts += a.length; mats += m.length;
+    const items = w.map(x => ({ title: x.title, due: dueOf(x), link: x.alternateLink }));
+    dated += items.filter(i => i.due).length;
+    const now = Date.now();
+    items.sort((p, q) => (p.due ? (p.due < now ? 2e13 - p.due : +p.due) : 3e13) - (q.due ? (q.due < now ? 2e13 - q.due : +q.due) : 3e13));
+    const li = items.slice(0, 8).map(i => { const d = fmtDue(i.due); return `<li><span>${i.link ? `<a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(i.title)}</a>` : esc(i.title)}</span><span class="due ${d.cls}">${esc(d.text)}</span></li>`; }).join('');
+    const latest = a[0] ? `<details><summary>Latest announcement</summary><p style="white-space:pre-wrap;font-size:.9rem;margin:.4rem 0 0">${esc((a[0].text || '').slice(0, 600))}${(a[0].text || '').length > 600 ? '…' : ''}</p></details>` : '';
+    $('#courses').insertAdjacentHTML('beforeend', `<section class="panel course"><h3>${esc(c.name)}</h3><div class="meta">${esc([c.section, c.room].filter(Boolean).join(' · ')) || '&nbsp;'}</div>
+      <div class="tags"><span class="tag">${w.length} assignments</span><span class="tag">${a.length} announcements</span><span class="tag">${m.length} materials</span></div>
+      ${li ? `<ul class="list">${li}</ul>${items.length > 8 ? `<p class="muted" style="font-size:.82rem;margin:.4rem 0 0">+ ${items.length - 8} more</p>` : ''}` : '<p class="muted" style="font-size:.9rem;margin:0">No assignments yet.</p>'}${latest}</section>`);
+  }
+  check(works ? 'pass' : 'skip', `Read ${works} assignments (${dated} with a due date).`);
+  check(posts ? 'pass' : 'skip', `Read ${posts} announcements.`);
+  check(mats ? 'pass' : 'skip', `Read ${mats} materials.`);
+  errs.forEach(t => check('fail', esc(t)));
+  status(errs.size ? 'Done, with some problems listed above.' : 'Done. JAS can read your Classroom.', errs.size ? 'bad' : 'ok');
+  $('#go').disabled = false;
+}
+</script>
+</body>
+</html>
