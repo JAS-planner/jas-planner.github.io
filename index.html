@@ -342,6 +342,41 @@ svg.word{display:block;height:.78em;width:1.81em;flex:none;color:currentColor;ov
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .brand .logo{color:#fff}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* College Recon: deadlines grouped by when they are due, then class cards */
+.rc-acts{display:flex;gap:8px;flex-wrap:wrap}
+.rc-msg{min-height:1.3em;margin:.2rem 0 .8rem;font-size:.92rem;color:var(--muted)}
+.rc-msg.bad{color:var(--bad)} .rc-msg.ok{color:var(--green)}
+.rc-intro{border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;background:var(--glass)}
+.rc-intro ol{margin:0 0 .6rem;padding-left:1.2rem;display:grid;gap:4px}
+.rc-intro p{margin:0;font-size:.88rem}
+.rc-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.rc-filter button{font:inherit;cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);border-radius:999px;padding:.3rem .75rem;font-size:.82rem}
+.rc-filter button[aria-pressed="true"]{border-color:rgba(43,255,136,.6);color:var(--green);background:rgba(43,255,136,.1)}
+.rc-toggle{display:inline-flex;gap:6px;align-items:center;font-size:.86rem;color:var(--muted);cursor:pointer}
+.rc-group{margin:18px 0}
+.rc-group h3{font-size:.95rem;display:flex;gap:8px;align-items:center;margin:0 0 8px}
+.rc-group h3 .n{font:600 .72rem var(--mono);color:var(--muted)}
+.rc-group.overdue h3{color:var(--bad)} .rc-group.today h3,.rc-group.week h3{color:var(--warn)}
+.rc-list{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.rc-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--glass)}
+.rc-item.done{opacity:.55}
+.rc-item.done .rc-t{text-decoration:line-through}
+.rc-item input{width:18px;height:18px;accent-color:var(--green);flex:none;cursor:pointer}
+.rc-main{flex:1;min-width:0}
+.rc-t{display:block;color:var(--fg);font-weight:600;overflow-wrap:anywhere;text-decoration:none}
+a.rc-t:hover{color:var(--green-strong);text-decoration:underline}
+.rc-c{font-size:.8rem;color:var(--muted)}
+.rc-due{flex:none;font:500 .78rem var(--mono);color:var(--muted);white-space:nowrap;text-align:right}
+.rc-group.overdue .rc-due{color:var(--bad)} .rc-group.today .rc-due{color:var(--warn)}
+.rc-turned{display:inline-block;font:600 .64rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--green);margin-left:6px}
+.rc-classes{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:8px}
+.rc-class{border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;background:var(--glass);display:flex;flex-direction:column;gap:6px}
+.rc-class h4{margin:0;font-size:1rem;overflow-wrap:anywhere}
+.rc-class .rc-c{flex:1}
+.rc-class .rc-acts{margin-top:4px}
+.rc-class a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.rc-none{color:var(--muted);font-size:.9rem;margin:6px 0 0}
+@media (max-width:640px){ .rc-item{flex-wrap:wrap} .rc-due{width:100%;text-align:left;padding-left:30px} }
 /* ===== Dark neon look ===== */
 body{background-color:var(--bg);background-image:radial-gradient(60rem 38rem at 88% -8%,rgba(43,255,136,.11),transparent 62%),radial-gradient(46rem 34rem at -12% 38%,rgba(0,190,140,.07),transparent 60%);background-attachment:fixed}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 25%,transparent 75%);mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 25%,transparent 75%)}
@@ -423,7 +458,7 @@ nav.main button[aria-current="page"]{background:rgba(43,255,136,.1);color:var(--
 .tools,.zoom,#ctx,.popover,#labels-panel{background:rgba(10,16,13,.86)}
 .hint,.toast{background:rgba(6,12,9,.92);color:var(--fg);border:1px solid rgba(43,255,136,.35);box-shadow:0 10px 30px -10px var(--glow)}
 .people .pa{border-color:#05080a}
-@media (max-width:620px){ nav.main{background:rgba(5,8,10,.86);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)} .hero{padding-block:40px 28px} }
+@media (max-width:620px){ header.top{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(5,8,10,.94)} nav.main button{padding:.5rem .45rem;font-size:.8rem;white-space:nowrap} nav.main{background:rgba(5,8,10,.86);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)} .hero{padding-block:40px 28px} }
 @media (prefers-reduced-motion: reduce){ .btn,.tcard,.bcard,.fcard{transition:none} }
 </style>
 </head>
@@ -504,7 +539,7 @@ nav.main button[aria-current="page"]{background:rgba(43,255,136,.1);color:var(--
         <div class="lsec-h">
           <span class="eyebrow">Choose a mode</span>
           <h2>Pick a feature to use</h2>
-          <p>Each feature is a mode inside JAS. For now there's one, Notes Workspace. As more arrive, you'll choose the mode you want to use right here.</p>
+          <p>Each feature is a mode inside JAS. Notes Workspace is for planning on a board, and College Recon brings in your Google Classroom deadlines. More modes will arrive here.</p>
         </div>
         <div class="fgrid" id="feature-grid"></div>
       </div>
@@ -609,6 +644,7 @@ nav.main button[aria-current="page"]{background:rgba(43,255,136,.1);color:var(--
         <button data-lobby>All features</button>
         <button data-view="home" aria-current="page">Boards</button>
         <button data-view="templates">Templates</button>
+        <button data-view="recon">College Recon</button>
       </nav>
       <div class="user">
         <div class="avatar" id="u-initial">J</div>
@@ -639,6 +675,34 @@ nav.main button[aria-current="page"]{background:rgba(43,255,136,.1);color:var(--
       </section>
       <p class="notice" data-local><b>Saved in this browser.</b> Boards auto-save on this device only. They don't sync to other devices yet, and clearing your browser data deletes them.</p>
       <p class="notice" data-online><b>Saved online.</b> Your boards follow your account on any device. Open a board and press <b>Share</b> to plan together with other people.</p>
+    </div>
+
+    <!-- COLLEGE RECON -->
+    <div class="view" id="v-recon" hidden>
+      <div class="hello">
+        <div><span class="eyebrow">Feature 2 · Beta</span><h2>College Recon</h2><p>Your Google Classroom deadlines in one list. Turn any class into a JAS board.</p></div>
+        <div class="rc-acts"><button class="btn ghost" id="rc-sync" hidden>Sync now</button><button class="btn" id="rc-connect">Connect Google Classroom</button></div>
+      </div>
+      <p id="rc-msg" class="rc-msg" role="status"></p>
+      <div id="rc-empty" class="rc-intro">
+        <ol>
+          <li>Press <b>Connect Google Classroom</b> and sign in with the Google account you use for school.</li>
+          <li>If Google says it hasn't verified the app, press <b>Continue</b>. JAS is still being tested.</li>
+          <li>Tick every box so JAS can read your classes, assignments and announcements.</li>
+        </ol>
+        <p class="muted">JAS only reads. It never posts or submits anything to Classroom. Only people on the JAS test list can connect for now.</p>
+      </div>
+      <div id="rc-body" hidden>
+        <div class="rc-bar">
+          <div class="chips rc-filter" id="rc-filter" role="group" aria-label="Filter by class"></div>
+          <label class="rc-toggle"><input type="checkbox" id="rc-show-done"> Show finished</label>
+        </div>
+        <div id="rc-groups"></div>
+        <section>
+          <div class="sec-h"><h3>Your classes</h3><span id="rc-synced" class="muted"></span></div>
+          <div class="rc-classes" id="rc-classes"></div>
+        </section>
+      </div>
     </div>
 
     <!-- TEMPLATES -->
@@ -744,6 +808,7 @@ nav.main button[aria-current="page"]{background:rgba(43,255,136,.1);color:var(--
     <p data-online>Your account (name, email, and a securely hashed password) and your boards, including images, are stored with our database provider, Supabase, so you can sign in on any device and share boards. Your password is never stored in readable form.</p>
     <h4>4. Sharing</h4>
     <p data-local>We do not sell or share your personal information with third parties. Boards are private to the browser they were made in.</p>
+    <p>If you connect Google Classroom in College Recon, JAS reads your classes, assignments, announcements and turned-in status. JAS never posts or submits anything to Classroom. The list is kept in your browser, and a class is only saved to your boards when you press Make a board.</p>
     <p data-online>If you make an AI connector key, the AI app you give it to can read your boards and add to them until you remove the key. Only a scrambled copy of each key is stored.</p>
     <p data-online>We do not sell your personal information. A board is visible only to you and the people you add to it. People on the same board can see each other's name and email.</p>
     <h4>5. Your rights</h4>
@@ -1133,6 +1198,11 @@ const ILLUSTRATIONS = {
     <rect x="172" y="24" width="124" height="60" rx="4" fill="#fff3a3"/><rect x="184" y="38" width="90" height="6" rx="3" fill="#a89a4a"/><rect x="184" y="50" width="64" height="6" rx="3" fill="#a89a4a"/>
     <rect x="172" y="96" width="124" height="60" rx="4" fill="#ffd6e3"/><rect x="184" y="110" width="84" height="6" rx="3" fill="#b07a8b"/><rect x="184" y="122" width="54" height="6" rx="3" fill="#b07a8b"/></svg>`
 };
+ILLUSTRATIONS.recon = `<svg viewBox="0 0 320 180" aria-hidden="true"><rect x="24" y="20" width="272" height="140" rx="8" fill="#f4f8f5" stroke="#2b3a30" stroke-width="1.5"/>
+    <rect x="40" y="34" width="70" height="7" rx="3" fill="#2b3a30"/>
+    <g><rect x="40" y="52" width="240" height="26" rx="5" fill="#ffd6e3"/><circle cx="54" cy="65" r="5" fill="none" stroke="#b07a8b" stroke-width="2"/><rect x="66" y="62" width="110" height="6" rx="3" fill="#b07a8b"/><rect x="236" y="62" width="32" height="6" rx="3" fill="#b3261e"/></g>
+    <g><rect x="40" y="84" width="240" height="26" rx="5" fill="#ffd9b0"/><circle cx="54" cy="97" r="5" fill="none" stroke="#b38a5f" stroke-width="2"/><rect x="66" y="94" width="90" height="6" rx="3" fill="#b38a5f"/><rect x="236" y="94" width="32" height="6" rx="3" fill="#a15c00"/></g>
+    <g><rect x="40" y="116" width="240" height="26" rx="5" fill="#c9f0d3"/><circle cx="54" cy="129" r="5" fill="#1f7a45"/><path d="M51.5 129l2 2 3.5-4" stroke="#fff" stroke-width="1.6" fill="none"/><rect x="66" y="126" width="120" height="6" rx="3" fill="#5f9b74"/><rect x="236" y="126" width="32" height="6" rx="3" fill="#1f7a45"/></g></svg>`;
 const FEATURES = [
   { id:'notes', name:'Notes Workspace', lead:true, status:'ok', statusText:'Available in demo', price:'Pricing coming soon',
     desc:'A big white canvas for sticky notes, text, shapes, images, and arrows. Lay out any plan and rearrange it as it changes.',
@@ -1141,6 +1211,13 @@ const FEATURES = [
       <ul><li>Sticky notes, text, shapes, and images on a large white canvas</li><li>Arrows and connectors that follow items when you move them</li><li>Drag, resize, edit, duplicate, and delete</li><li>Zoom, pan, and fit to screen</li><li>Undo and redo, colors, and labels to group notes</li><li>Board title, auto-save, and optional templates</li></ul>
       <p><b>Pricing:</b> not decided yet. There's no payment or checkout in this demo.</p>
       <p><b>Saving:</b> boards stay in the browser you use. They don't sync to other devices.</p>` },
+  { id:'recon', name:'College Recon', status:'ok', statusText:'Beta', price:'Pricing coming soon',
+    desc:'Connect Google Classroom to see every deadline in one list, and turn a class into a board of sticky notes.',
+    preview:()=>ILLUSTRATIONS.recon,
+    details:`<p>College Recon is Feature 2. It reads your Google Classroom and keeps your school work in view.</p>
+      <ul><li>All your deadlines in one list: Overdue, Today, This week, Later</li><li>Work you already turned in is marked as finished</li><li>Filter by class, and open any assignment in Classroom</li><li>Make a JAS board from a class, with assignments and announcements as sticky notes</li></ul>
+      <p><b>Read only:</b> JAS never posts or submits anything to Classroom.</p>
+      <p><b>Beta:</b> only people on the JAS test list can connect for now. Some school accounts block outside apps.</p>` },
   { id:'travel', name:'Travel Planner', status:'soon', statusText:'Coming soon', price:'Pricing coming soon',
     desc:'A dedicated planner for itineraries, bookings, and trip budgets.',
     preview:()=>ILLUSTRATIONS.travel,
@@ -1179,7 +1256,7 @@ function openFeature(id){
 }
 document.addEventListener('click', e=>{
   const l = e.target.closest('[data-learn]'); if(l) return openFeature(l.dataset.learn);
-  const t = e.target.closest('[data-try]'); if(t){ $('#dlg-feature').open && $('#dlg-feature').close(); goToBoards(); }
+  const t = e.target.closest('[data-try]'); if(t){ $('#dlg-feature').open && $('#dlg-feature').close(); if(t.dataset.try==='recon'){ if(!me) return showAuth('in'); showScreen('app'); showView('recon'); } else goToBoards(); }
 });
 const CAPS = [
   ['Sticky notes and text','Type ideas on colored notes or add headings anywhere.'],
@@ -1211,10 +1288,11 @@ function renderLobby(){
 
 /* ---------------- Home & templates views ---------------- */
 function showView(v){
-  ['home','templates'].forEach(n => $('#v-'+n).hidden = n!==v);
+  ['home','templates','recon'].forEach(n => $('#v-'+n).hidden = n!==v);
   $$('nav.main button').forEach(b => b.dataset.view===v ? b.setAttribute('aria-current','page') : b.removeAttribute('aria-current'));
   if(v==='home'){ renderHome(); if(cloud()) refreshBoards().then(()=>{ if(me && !$('#app').hidden && !$('#v-home').hidden) renderHome(); }); }
   if(v==='templates') renderTemplates();
+  if(v==='recon') Recon.render();
   window.scrollTo(0,0);
 }
 document.addEventListener('click', e=>{ const b=e.target.closest('[data-view]'); if(b) showView(b.dataset.view); });
@@ -1289,8 +1367,8 @@ function renderHome(){
     store.set(boardsKey(), loadBoards().filter(x=>x.id!==b.dataset.delYes)); pendingDelete=null; toast('Board deleted'); renderHome(); });
 }
 $('#new-blank').onclick = ()=>createAndOpen('blank');
-async function createAndOpen(tplId){
-  const b = newBoardFrom(tplId);
+async function createAndOpen(tplId){ return saveNewBoard(newBoardFrom(tplId)); }
+async function saveNewBoard(b){
   if(cloud()){
     try{ await DB.insert(b); }catch(e){ return toast('Could not create the board. Check your connection and try again.'); }
     return openBoard(b.id);
@@ -2123,6 +2201,151 @@ $('#ai-copy').onclick = async ()=>{
   const v=$('#ai-url').value;
   try{ await navigator.clipboard.writeText(v); toast('Link copied'); }catch(e){ $('#ai-url').select(); toast('Press Ctrl+C to copy'); }
 };
+
+/* ---------------- College Recon (Google Classroom, read only) ---------------- */
+const Recon = (()=>{
+  const CLIENT_ID = '339827998718-p0r7m381r9jpcku057sd915k25qv1ps3.apps.googleusercontent.com';
+  const SCOPES = ['classroom.courses.readonly','classroom.coursework.me.readonly','classroom.courseworkmaterials.readonly','classroom.announcements.readonly']
+    .map(s=>'https://www.googleapis.com/auth/'+s).join(' ');
+  const API = 'https://classroom.googleapis.com/v1/';
+  let token = null, tokenExp = 0, client = null, busy = false, filter = 'all';
+  const key = () => 'jas_recon:' + me.email, doneKey = () => 'jas_recon_done:' + me.email;
+  const data = () => store.get(key(), null);
+  const doneSet = () => new Set(store.get(doneKey(), []));
+  try{ const t = JSON.parse(sessionStorage.getItem('jas_gtok')||'null'); if(t && t.exp > Date.now()){ token=t.tok; tokenExp=t.exp; } }catch(e){}
+  function msg(t, kind){ const m=$('#rc-msg'); m.textContent=t||''; m.className='rc-msg'+(kind?' '+kind:''); }
+  function loadGis(){
+    if(window.google?.accounts?.oauth2) return Promise.resolve();
+    return loadScript('https://accounts.google.com/gsi/client');
+  }
+  async function api(path){
+    const r = await fetch(API + path, { headers:{ Authorization:'Bearer '+token } });
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok){ const e=new Error(j.error?.message||('HTTP '+r.status)); e.status=r.status; throw e; }
+    return j;
+  }
+  async function all(path, k){
+    let out=[], page='';
+    for(let i=0;i<10;i++){ const j=await api(path+(path.includes('?')?'&':'?')+'pageSize=100'+(page?'&pageToken='+encodeURIComponent(page):'')); out=out.concat(j[k]||[]); page=j.nextPageToken; if(!page) break; }
+    return out;
+  }
+  const dueOf = w => w.dueDate ? Date.UTC(w.dueDate.year, w.dueDate.month-1, w.dueDate.day, w.dueTime?.hours ?? 23, w.dueTime?.minutes ?? 59) : null;
+  function getToken(){
+    return new Promise((ok, no)=>{
+      client = google.accounts.oauth2.initTokenClient({ client_id:CLIENT_ID, scope:SCOPES,
+        callback: r => { if(r.error) return no(new Error(r.error)); token=r.access_token; tokenExp=Date.now()+((+r.expires_in||3600)-60)*1000;
+          try{ sessionStorage.setItem('jas_gtok', JSON.stringify({tok:token, exp:tokenExp})); }catch(e){} ok(); },
+        error_callback: e => no(new Error(e.type||'popup')) });
+      client.requestAccessToken();
+    });
+  }
+  function explain(e){
+    const m = String(e.message||'');
+    if(m==='popup_closed') return 'The Google window was closed before finishing.';
+    if(m==='popup_failed_to_open') return 'Your browser blocked the Google window. Allow pop-ups for this site and try again.';
+    if(m==='access_denied') return 'Google did not allow access. If this is a school account, your school may block outside apps, or you are not on the JAS test list yet.';
+    if(e.status===401) return 'Your Google sign-in expired. Press Connect Google Classroom again.';
+    if(e.status===403) return 'Google refused access. Your school may block outside apps for this account.';
+    return 'Could not reach Google Classroom. Check your connection and try again.';
+  }
+  async function sync(){
+    if(busy) return; busy=true; $('#rc-connect').disabled=$('#rc-sync').disabled=true;
+    try{
+      if(!token || Date.now() > tokenExp){ msg('Opening Google sign-in…'); await loadGis(); await getToken(); }
+      msg('Reading your classes…');
+      const courses = await all('courses?courseStates=ACTIVE', 'courses');
+      const out = { synced:Date.now(), courses:[] };
+      for(const c of courses){
+        msg('Reading '+c.name+'…');
+        const [works, posts, subs] = await Promise.all([
+          all('courses/'+c.id+'/courseWork', 'courseWork').catch(()=>[]),
+          all('courses/'+c.id+'/announcements', 'announcements').catch(()=>[]),
+          all('courses/'+c.id+'/courseWork/-/studentSubmissions', 'studentSubmissions').catch(()=>[])
+        ]);
+        const state = Object.fromEntries(subs.map(s=>[s.courseWorkId, s.state]));
+        out.courses.push({ id:c.id, name:c.name, section:[c.section,c.room].filter(Boolean).join(' · '), link:c.alternateLink,
+          work: works.map(w=>({ id:w.id, title:w.title||'Untitled', due:dueOf(w), link:w.alternateLink, turnedIn:['TURNED_IN','RETURNED'].includes(state[w.id]) })),
+          posts: posts.slice(0,12).map(a=>({ text:(a.text||'').slice(0,400), at:Date.parse(a.creationTime)||null })) });
+      }
+      if(!store.set(key(), out) && storageOK) mem[key()] = out;
+      msg(courses.length ? `Synced ${courses.length} class${courses.length===1?'':'es'}.` : 'Connected, but this account has no active classes. Try the Google account you use for school.', courses.length?'ok':'');
+    }catch(e){
+      if(e.status===401){ token=null; try{ sessionStorage.removeItem('jas_gtok'); }catch(x){} }
+      msg(explain(e), 'bad');
+    }finally{ busy=false; $('#rc-connect').disabled=$('#rc-sync').disabled=false; render(true); }
+  }
+  const DAY = 864e5;
+  function bucket(due, now){
+    if(due==null) return 'none';
+    if(due < now) return 'overdue';
+    const end = new Date(now); end.setHours(23,59,59,999);
+    if(due <= +end) return 'today';
+    if(due <= +end + 6*DAY) return 'week';
+    return 'later';
+  }
+  const fmt = t => new Date(t).toLocaleString(undefined,{weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
+  function render(keepMsg){
+    if(!me) return;
+    loadGis().catch(()=>{});
+    const d = data();
+    if(!keepMsg && !busy) msg('');
+    $('#rc-connect').textContent = d ? 'Reconnect' : 'Connect Google Classroom';
+    $('#rc-connect').className = d ? 'btn ghost' : 'btn';
+    $('#rc-sync').hidden = !d; $('#rc-sync').className = 'btn';
+    $('#rc-empty').hidden = !!d; $('#rc-body').hidden = !d;
+    if(!d) return;
+    if(filter!=='all' && !d.courses.some(c=>c.id===filter)) filter='all';
+    $('#rc-filter').innerHTML = [['all','All classes'], ...d.courses.map(c=>[c.id, c.name])].map(([id,n])=>`<button type="button" data-rcf="${esc(id)}" aria-pressed="${filter===id}">${esc(n)}</button>`).join('');
+    const done = doneSet(), showDone = $('#rc-show-done').checked, now = Date.now();
+    const groups = { overdue:[], today:[], week:[], later:[], none:[] };
+    for(const c of d.courses){ if(filter!=='all' && c.id!==filter) continue;
+      for(const w of c.work){ const fin = w.turnedIn || done.has(w.id); if(fin && !showDone) continue;
+        // finished overdue work does not belong under Overdue
+        groups[fin && w.due!=null && w.due<now ? 'later' : bucket(w.due, now)].push({...w, course:c.name, fin}); } }
+    const NAMES = { overdue:'Overdue', today:'Due today', week:'This week', later:'Later', none:'No due date' };
+    for(const k in groups) groups[k].sort((a,b)=> k==='overdue' ? b.due-a.due : (a.due??0)-(b.due??0));
+    const html = Object.entries(groups).filter(([,v])=>v.length).map(([k,v])=>`<section class="rc-group ${k}"><h3>${NAMES[k]} <span class="n">${v.length}</span></h3><ul class="rc-list">${
+      v.map(w=>`<li class="rc-item${w.fin?' done':''}"><input type="checkbox" data-rcdone="${esc(w.id)}" ${w.fin?'checked':''} ${w.turnedIn?'disabled title="Turned in on Classroom"':''} aria-label="Mark ${esc(w.title)} as finished">
+        <div class="rc-main">${w.link?`<a class="rc-t" href="${esc(w.link)}" target="_blank" rel="noopener">${esc(w.title)}</a>`:`<span class="rc-t">${esc(w.title)}</span>`}<span class="rc-c">${esc(w.course)}${w.turnedIn?'<span class="rc-turned">Turned in</span>':''}</span></div>
+        <span class="rc-due">${w.due!=null?esc(fmt(w.due)):'No due date'}</span></li>`).join('')}</ul></section>`).join('');
+    $('#rc-groups').innerHTML = html || `<p class="rc-none">${showDone ? 'No assignments found.' : 'Nothing left to do. Nice work!'}</p>`;
+    $('#rc-synced').textContent = 'Last synced ' + new Date(d.synced).toLocaleString(undefined,{month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
+    $('#rc-classes').innerHTML = d.courses.length ? d.courses.map(c=>{ const open=c.work.filter(w=>!w.turnedIn && !done.has(w.id)).length;
+      return `<article class="rc-class"><h4>${esc(c.name)}</h4><span class="rc-c">${esc(c.section||'')}${c.section?' · ':''}${open} to do · ${c.work.length} assignment${c.work.length===1?'':'s'}</span>
+        <div class="rc-acts"><button class="btn sm" data-rcboard="${esc(c.id)}">Make a board</button>${c.link?`<a class="btn ghost sm" href="${esc(c.link)}" target="_blank" rel="noopener">Open in Classroom</a>`:''}</div></article>`; }).join('')
+      : '<p class="rc-none">No active classes on this account.</p>';
+  }
+  function boardFor(c){
+    const done = doneSet(), now = Date.now(), items = [], W2 = 220, H = 200, G = 24, COLS = 4;
+    let z = 0;
+    const text = (t, x, y) => items.push({ id:uid(), type:'text', x, y, w:600, h:56, text:t, color:'#17241c', fs:28, label:null, shape:'rect', z:++z });
+    text(c.name + ' · Assignments', 0, 0);
+    const work = [...c.work].sort((a,b)=>(a.due??9e15)-(b.due??9e15));
+    work.forEach((w,i)=>{ const fin = w.turnedIn || done.has(w.id);
+      const color = fin ? '#c9f0d3' : w.due==null ? '#e6e9e7' : w.due<now ? '#ffd6e3' : w.due-now<7*DAY ? '#ffd9b0' : '#fff3a3';
+      const t = (w.title.length>110 ? w.title.slice(0,107)+'…' : w.title) + '\n\n' + (fin ? 'Done' : w.due!=null ? 'Due ' + fmt(w.due) : 'No due date');
+      items.push({ id:uid(), type:'sticky', x:(i%COLS)*(W2+G), y:90+Math.floor(i/COLS)*(H+G), w:W2, h:H, text:t, color, fs:15, label:null, shape:'rect', z:++z }); });
+    const top = 90 + Math.max(1, Math.ceil(work.length/COLS))*(H+G) + 60;
+    if(c.posts.length){
+      text('Announcements', 0, top);
+      c.posts.slice(0,8).forEach((p,i)=>{ const t = (p.at ? new Date(p.at).toLocaleDateString(undefined,{month:'short', day:'numeric'})+'\n' : '') + (p.text.length>170 ? p.text.slice(0,167)+'…' : p.text);
+        items.push({ id:uid(), type:'sticky', x:(i%COLS)*(W2+G), y:top+90+Math.floor(i/COLS)*(H+G), w:W2, h:H, text:t, color:'#cfe3ff', fs:14, label:null, shape:'rect', z:++z }); });
+    }
+    if(!work.length && !c.posts.length) items.push({ id:uid(), type:'sticky', x:0, y:90, w:W2, h:H, text:'No assignments or announcements yet.', color:'#e6e9e7', fs:15, label:null, shape:'rect', z:++z });
+    return { id:newId(), title:c.name, items, links:[], labels:defaultLabels(), assets:{}, view:null, created:Date.now(), updated:Date.now() };
+  }
+  document.addEventListener('click', e=>{
+    const f = e.target.closest('[data-rcf]'); if(f){ filter=f.dataset.rcf; return render(); }
+    const b = e.target.closest('[data-rcboard]'); if(b){ const c=data()?.courses.find(x=>x.id===b.dataset.rcboard); if(c){ toast('Making a board for '+c.name); saveNewBoard(boardFor(c)); } }
+  });
+  document.addEventListener('change', e=>{
+    const d = e.target.closest('[data-rcdone]'); if(d){ const s=doneSet(); d.checked ? s.add(d.dataset.rcdone) : s.delete(d.dataset.rcdone); store.set(doneKey(), [...s]); render(); }
+    if(e.target.id==='rc-show-done') render();
+  });
+  $('#rc-connect').onclick = ()=>{ if(data()){ token=null; } sync(); };
+  $('#rc-sync').onclick = ()=>sync();
+  return { render };
+})();
 </script>
 </body>
 </html>
