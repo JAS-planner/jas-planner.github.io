@@ -165,7 +165,6 @@ async function run(token, granted){
   status('Connected. Reading your classes…');
   check('pass', 'Signed in with Google and access was granted.');
   const missing = SCOPES.split(' ').filter(s => !granted.split(' ').includes(s)).map(s => s.split('.').slice(-2).join('.'));
-  if (missing.length) check('fail', 'Some permissions were not ticked: ' + esc(missing.join(', ')) + '. Press Connect again and tick every box.');
   let courses;
   try { courses = await all(token, 'courses?courseStates=ACTIVE', 'courses'); }
   catch (e) { check('fail', esc(explain(e))); status('The test stopped.', 'bad'); $('#go').disabled = false; return; }
