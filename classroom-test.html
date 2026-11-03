@@ -99,7 +99,8 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = { get(k){ try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} } };
 
-$('#cid').value = store.get('jas_gcid');
+const DEFAULT_CID = '339827998718-p0r7m381r9jpcku057sd915k25qv1ps3.apps.googleusercontent.com';
+$('#cid').value = store.get('jas_gcid') || DEFAULT_CID;
 $('#save').onclick = () => { store.set('jas_gcid', $('#cid').value.trim()); status('Saved.', 'ok'); };
 function status(t, kind){ const s=$('#status'); s.textContent=t; s.className=kind||''; }
 
