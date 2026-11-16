@@ -236,6 +236,12 @@ body.online [data-local],body:not(.online) [data-online]{display:none!important}
 #vp.t-sticky,#vp.t-text,#vp.t-shape,#vp.t-connector{cursor:crosshair}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;--z:1}
 #links{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;z-index:0;pointer-events:none}
+/* other people on the same board: their selection outline, name tag and pointer */
+.item .who{position:absolute;left:-3px;top:-8px;transform-origin:0 100%;color:#fff;font:600 11px/1.2 var(--body);padding:3px 7px;border-radius:6px 6px 6px 0;white-space:nowrap;pointer-events:none;z-index:3}
+#cursors{position:absolute;left:0;top:0;pointer-events:none}
+#cursors .cur{position:absolute;left:0;top:0;transform-origin:0 0;transition:translate .09s linear;will-change:translate}
+#cursors .cur svg{display:block;width:18px;height:18px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+#cursors .cur span{display:block;margin:-2px 0 0 14px;color:#fff;font:600 11px/1.2 var(--body);padding:3px 7px;border-radius:6px;white-space:nowrap}
 #links .hit{stroke:transparent;stroke-width:16;fill:none;pointer-events:stroke;cursor:pointer}
 #links .ln{fill:none;stroke-width:2.2;stroke-linecap:round}
 #links .sel .ln{stroke:var(--sel);stroke-width:3.4}
@@ -745,6 +751,7 @@ nav.main button[aria-current="page"]{background:rgba(43,255,136,.1);color:var(--
       <div id="world">
         <svg id="links" aria-hidden="true"><defs id="markers"></defs><g id="link-g"></g><path id="tmp-link" class="tmp" d=""/></svg>
         <div id="items"></div>
+        <div id="cursors" aria-hidden="true"></div>
       </div>
     </div>
 
@@ -1388,7 +1395,17 @@ const topZ = () => W.board.items.reduce((m,i)=>Math.max(m,i.z),0);
 const snap = () => JSON.stringify({items:W.board.items, links:W.board.links, labels:W.board.labels});
 
 // arrowhead markers, one per line colour (last one is the selection colour)
-$('#markers').innerHTML = [...LINE_COLORS,'#1f9d5a'].map((c,i)=>`<marker id="ah${i}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" markerUnits="strokeWidth" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`).join('');
+// arrowheads: filled, open and dot, one set per line colour (last one is the selection colour)
+$('#markers').innerHTML = [...LINE_COLORS,'#1f9d5a'].map((c,i)=>
+  `<marker id="ah${i}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" markerUnits="strokeWidth" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`+
+  `<marker id="ao${i}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" markerUnits="strokeWidth" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>`+
+  `<marker id="ad${i}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3.6" markerHeight="3.6" markerUnits="strokeWidth" orient="auto"><circle cx="5" cy="5" r="4.2" fill="${c}"/></marker>`).join('');
+const LINE_PATHS=[['straight','Straight'],['curved','Curved'],['elbow','Elbow']];
+const LINE_DASH={solid:'',dashed:'9 7',dotted:'0.1 6.5'};
+const LINE_W={thin:1.4,normal:2.2,thick:3.6};
+const HEADS=[['end','Arrow at end'],['both','Arrows at both ends'],['start','Arrow at start'],['none','No arrows']];
+const HEAD_KINDS=[['filled','Filled head'],['open','Open head'],['dot','Dot']];
+const headsOf = l => l.heads || (l.arrow===false ? 'none' : 'end');
 
 async function openBoard(id){
   let b;
@@ -1570,7 +1587,8 @@ function startSync(b){
     .on('postgres_changes', { event:'UPDATE', schema:'public', table:'boards', filter:'id=eq.'+b.id }, p=>{
       if(S===s && p.new?.data?._rev !== s.rev) pullRemote(s);
     })
-    .on('presence', { event:'sync' }, ()=>{ if(S===s) paintPeople(s); })
+    .on('presence', { event:'sync' }, ()=>{ if(S===s){ paintPeople(s); Live.prune(s); } })
+    .on('broadcast', { event:'live' }, m=>{ if(S===s) Live.receive(m.payload); })
     .subscribe(st=>{ if(st==='SUBSCRIBED') s.chan.track({ name:me.name, email:me.email }); });
   // backup check in case live updates are blocked on this network
   s.poll = setInterval(async ()=>{
@@ -1583,6 +1601,7 @@ function stopSync(){
   if(!S) return;
   clearInterval(S.poll); clearTimeout(S.retryT);
   if(S.chan) sb.removeChannel(S.chan);
+  Live.reset();
   S=null; $('#b-people').innerHTML='';
 }
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && S) pullRemote(S); });
@@ -1637,7 +1656,7 @@ $('#sh-form').addEventListener('submit', async e=>{
 });
 
 /* ---------- History ---------- */
-function updUndo(){ $('#b-undo').disabled=!W.undo.length; $('#b-redo').disabled=!W.redo.length; }
+function updUndo(){ $('#b-undo').disabled=!W.undo.length && !(W.editing && W.tUndo); $('#b-redo').disabled=!W.redo.length && !(W.editing && W.tRedo?.length); }
 function pushUndo(before){ W.undo.push(before); if(W.undo.length>100) W.undo.shift(); W.redo=[]; updUndo(); }
 function mutate(fn){ const before=snap(); fn(); if(snap()!==before){ pushUndo(before); saveSoon(); } render(); }
 function restore(s){
@@ -1646,9 +1665,11 @@ function restore(s){
   if(W.selLink && !W.board.links.find(l=>l.id===W.selLink)) W.selLink=null;
   render(); saveSoon(); updUndo();
 }
-function undo(){ endEdit(); if(!W.undo.length) return; W.redo.push(snap()); restore(W.undo.pop()); }
-function redo(){ endEdit(); if(!W.redo.length) return; W.undo.push(snap()); restore(W.redo.pop()); }
+function undo(){ if(W.editing && textUndo()) return; endEdit(); if(!W.undo.length) return; W.redo.push(snap()); restore(W.undo.pop()); }
+function redo(){ if(W.editing && textRedo()) return; endEdit(); if(!W.redo.length) return; W.undo.push(snap()); restore(W.redo.pop()); }
 $('#b-undo').onclick=undo; $('#b-redo').onclick=redo;
+// keep the text box focused when Undo or Redo is pressed while typing
+['#b-undo','#b-redo'].forEach(q=>$(q).addEventListener('pointerdown', e=>{ if(W.editing) e.preventDefault(); }));
 
 /* ---------- View: pan & zoom ---------- */
 const vpRect = () => vp.getBoundingClientRect();
@@ -1656,7 +1677,7 @@ function toWorld(cx,cy){ const r=vpRect(), v=W.board.view; return {x:(cx-r.left-
 function applyView(){
   const v=W.board.view;
   world.style.transform=`translate(${v.x}px,${v.y}px) scale(${v.z})`;
-  world.style.setProperty('--z', v.z);
+  world.style.setProperty('--z', v.z); try{ Live.rescale(); }catch(e){}
   vp.style.backgroundSize=`${24*v.z}px ${24*v.z}px`;
   vp.style.backgroundPosition=`${v.x}px ${v.y}px`;
   $('#z-pct').textContent=Math.round(v.z*100)+'%';
@@ -1706,14 +1727,17 @@ function paintItem(el, it){
   const sig = it.type + '|' + (it.type==='shape'?it.shape:'') + '|' + (it.type==='image'?it.src:'');
   if(el._sig!==sig){
     el._sig=sig;
-    const handles = '<span class="chip" hidden></span><i class="rh" title="Resize"></i><i class="ch" title="Drag onto another item to connect"></i>';
+    const handles = '<span class="who" hidden></span><span class="chip" hidden></span><i class="rh" title="Resize"></i><i class="ch" title="Drag onto another item to connect"></i>';
     if(it.type==='image'){ el.innerHTML = `<img alt="" draggable="false">${handles}`; el.querySelector('img').src = W.board.assets[it.src] || ''; }
     else el.innerHTML = (it.type==='shape'?shapeSVG(it.shape):'') + `<div class="content"></div>${handles}`;
   }
   const solo = W.sel.size===1 && W.sel.has(it.id) && W.editing!==it.id && W.tool==='select';
   const dim = W.focusLabel && it.label!==W.focusLabel;
   el.className = `item ${it.type}${it.type==='shape'?' '+it.shape:''}${it.top?' top':''}${W.sel.has(it.id)?' selected':''}${solo?' solo':''}${W.editing===it.id?' editing':''}${W.pendingFrom===it.id?' pending':''}${dim?' dim':''}`;
-  el.style.cssText = `left:${it.x}px;top:${it.y}px;width:${it.w}px;height:${it.h}px;z-index:${it.z}`+(it.type==='sticky'?`;background:${it.color}`:'');
+  let holder=null; try{ holder = Live.holder(it.id); }catch(e){}
+  el.style.cssText = `left:${it.x}px;top:${it.y}px;width:${it.w}px;height:${it.h}px;z-index:${it.z}`+(it.type==='sticky'?`;background:${it.color}`:'')+(holder?`;outline:2.5px solid ${holder.color};outline-offset:3px`:'');
+  const who = el.querySelector('.who');
+  if(who){ who.hidden=!holder; if(holder){ who.textContent=holder.name+(holder.editing?' is typing':''); who.style.background=holder.color; who.style.transform=`translateY(-100%) scale(${1/Math.max(W.board.view?.z||1,.75)})`; } }
   if(it.type==='shape') el.querySelector('.sh').firstElementChild.setAttribute('fill', it.color);
   const c = el.querySelector('.content');
   if(c){
@@ -1745,21 +1769,38 @@ function edgePoint(it, tx, ty, gapPx=6){
   const len=Math.hypot(dx,dy), g=gapPx/len;
   return {x:cx+dx*(t+g), y:cy+dy*(t+g)};
 }
-function linkPath(a,b){
-  const p=edgePoint(a, b.x+b.w/2, b.y+b.h/2), q=edgePoint(b, a.x+a.w/2, a.y+a.h/2);
-  return `M${p.x.toFixed(1)} ${p.y.toFixed(1)}L${q.x.toFixed(1)} ${q.y.toFixed(1)}`;
+function linkPath(a,b,kind){
+  const f=n=>n.toFixed(1);
+  const ac={x:a.x+a.w/2,y:a.y+a.h/2}, bc={x:b.x+b.w/2,y:b.y+b.h/2}, dx=bc.x-ac.x, dy=bc.y-ac.y, horiz=Math.abs(dx)>=Math.abs(dy);
+  if(kind==='elbow'){
+    // leave from the side facing the other item, turn once in the middle
+    const g=6;
+    if(horiz){ const sx=dx>=0?1:-1, p={x:ac.x+sx*(a.w/2+g),y:ac.y}, q={x:bc.x-sx*(b.w/2+g),y:bc.y}, mx=(p.x+q.x)/2;
+      return Math.abs(p.y-q.y)<1 ? `M${f(p.x)} ${f(p.y)}L${f(q.x)} ${f(q.y)}` : `M${f(p.x)} ${f(p.y)}H${f(mx)}V${f(q.y)}H${f(q.x)}`; }
+    const sy=dy>=0?1:-1, p={x:ac.x,y:ac.y+sy*(a.h/2+g)}, q={x:bc.x,y:bc.y-sy*(b.h/2+g)}, my=(p.y+q.y)/2;
+    return Math.abs(p.x-q.x)<1 ? `M${f(p.x)} ${f(p.y)}L${f(q.x)} ${f(q.y)}` : `M${f(p.x)} ${f(p.y)}V${f(my)}H${f(q.x)}V${f(q.y)}`;
+  }
+  const p=edgePoint(a, bc.x, bc.y), q=edgePoint(b, ac.x, ac.y);
+  if(kind==='curved'){
+    const len=Math.hypot(q.x-p.x,q.y-p.y), bend=Math.min(120, len*.28);
+    const nx=-(q.y-p.y)/(len||1), ny=(q.x-p.x)/(len||1), mx=(p.x+q.x)/2+nx*bend, my=(p.y+q.y)/2+ny*bend;
+    return `M${f(p.x)} ${f(p.y)}Q${f(mx)} ${f(my)} ${f(q.x)} ${f(q.y)}`;
+  }
+  return `M${f(p.x)} ${f(p.y)}L${f(q.x)} ${f(q.y)}`;
 }
 function renderLinks(){
   const dimOf = l => W.focusLabel && (find(l.from)?.label!==W.focusLabel || find(l.to)?.label!==W.focusLabel);
   linkG.innerHTML = W.board.links.map(l=>{
     const a=find(l.from), b=find(l.to); if(!a||!b) return '';
-    const d=linkPath(a,b), sel=W.selLink===l.id, ci=sel?LINE_COLORS.length:Math.max(0,LINE_COLORS.indexOf(l.color));
-    return `<g data-link="${l.id}" class="${sel?'sel':''}" opacity="${dimOf(l)?.22:1}"><path class="hit" d="${d}"/><path class="ln" d="${d}" stroke="${l.color}" ${l.arrow?`marker-end="url(#ah${ci})"`:''}/></g>`;
+    const d=linkPath(a,b,l.path), sel=W.selLink===l.id, ci=sel?LINE_COLORS.length:Math.max(0,LINE_COLORS.indexOf(l.color));
+    const h=headsOf(l), mk={filled:'ah',open:'ao',dot:'ad'}[l.head||'filled']||'ah', m=`url(#${mk}${ci})`;
+    const w=(LINE_W[l.width]||LINE_W.normal)+(sel?1.2:0), dash=LINE_DASH[l.dash]||'';
+    return `<g data-link="${l.id}" class="${sel?'sel':''}" opacity="${dimOf(l)?.22:1}"><path class="hit" d="${d}"/><path class="ln" d="${d}" stroke="${l.color}" style="stroke-width:${w}px${dash?`;stroke-dasharray:${dash}`:''}" ${h==='end'||h==='both'?`marker-end="${m}"`:''} ${h==='start'||h==='both'?`marker-start="${m}"`:''}/></g>`;
   }).join('');
 }
 function render(){
   if(!W.board) return;
-  renderItems(); renderLinks();
+  renderItems(); renderLinks(); try{ Live.selChanged(); }catch(e){}
   $('#empty-board').hidden = W.board.items.length>0 || W.tool!=='select';
   renderCtx(); renderLabelsPanel();
 }
@@ -1803,7 +1844,10 @@ function addItem(type, p, extra={}){
 function addLink(from, to){
   if(!from || !to || from===to) return;
   if(W.board.links.some(l=>(l.from===from&&l.to===to))) return toast('These items are already connected');
-  mutate(()=>{ const l={id:uid(),from,to,arrow:true,color:LINE_COLORS[0]}; W.board.links.push(l); W.sel.clear(); W.selLink=l.id; });
+  mutate(()=>{ const last=W.board.links[W.board.links.length-1]||{}, l={id:uid(),from,to,arrow:true,color:LINE_COLORS[0]};
+    for(const k of ['path','dash','width','heads','head','color']) if(last[k]) l[k]=last[k];
+    if(l.heads) l.arrow=l.heads!=='none';
+    W.board.links.push(l); W.sel.clear(); W.selLink=l.id; });
 }
 
 /* ---------- Editing text ---------- */
@@ -1811,6 +1855,7 @@ function startEdit(id){
   const it=find(id); if(!it || it.type==='image') return;
   if(W.editing && W.editing!==id) endEdit();
   W.editing=id; W.editBefore=snap(); W.sel=new Set([id]); W.selLink=null;
+  W.tUndo=[it.text||'']; W.tRedo=[]; W.tKind=null; W.tAt=0;
   render();
   const c=els.get(id).querySelector('.content');
   try{ c.contentEditable='plaintext-only'; }catch(e){}
@@ -1827,10 +1872,55 @@ function endEdit(){
     W.board.items=W.board.items.filter(x=>x.id!==id); W.sel.delete(id);
     if(W.justCreated===id){ W.undo.pop(); updUndo(); W.justCreated=null; render(); saveSoon(); return; }
   }
-  if(snap()!==W.editBefore) pushUndo(W.editBefore);
+  if(snap()!==W.editBefore){
+    // keep each word as its own undo step, so Undo after editing also goes back word by word
+    if(it){ const final=it.text, steps=(W.tUndo||[]).slice(1).filter((t,i,a)=>t!==final && t!==a[i-1]);
+      pushUndo(W.editBefore); for(const t of steps){ it.text=t; pushUndo(snap()); } it.text=final; }
+    else pushUndo(W.editBefore);
+  }
+  W.tUndo=null; W.tRedo=null;
   W.justCreated=null; render(); saveSoon();
 }
-itemsLayer.addEventListener('input', e=>{ const c=e.target.closest('.content'); if(!c) return; const it=find(c.parentElement.dataset.id); if(it){ it.text=c.innerText; saveSoon(); } });
+/* Word-by-word undo while typing: a checkpoint is saved before each new word, line, paste or switch between typing and deleting */
+function caretOffset(c){
+  const s=getSelection(); if(!s.rangeCount || !c.contains(s.focusNode)) return null;
+  const r=document.createRange(); r.selectNodeContents(c); r.setEnd(s.focusNode, s.focusOffset); return r.toString().length;
+}
+function setCaret(c, off){
+  const w=document.createTreeWalker(c, NodeFilter.SHOW_TEXT); let n, left=off;
+  while((n=w.nextNode())){ if(left<=n.length){ const r=document.createRange(); r.setStart(n,left); r.collapse(true); const s=getSelection(); s.removeAllRanges(); s.addRange(r); return; } left-=n.length; }
+  const r=document.createRange(); r.selectNodeContents(c); r.collapse(false); const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+function textCheckpoint(c){ const t=c.innerText.replace(/\n$/,''); if(W.tUndo[W.tUndo.length-1]!==t){ W.tUndo.push(t); if(W.tUndo.length>300) W.tUndo.shift(); } W.tRedo=[]; }
+function applyText(c, t){
+  const it=find(W.editing); c.textContent=t; if(it) it.text=t;
+  c.focus({preventScroll:true}); setCaret(c, t.length); saveSoon(); Live.text(W.editing, t); updUndo();
+}
+function textUndo(){
+  const c=W.editing && els.get(W.editing)?.querySelector('.content'); if(!c || !W.tUndo) return false;
+  const cur=c.innerText.replace(/\n$/,'');
+  while(W.tUndo.length && W.tUndo[W.tUndo.length-1]===cur) W.tUndo.pop();
+  if(!W.tUndo.length){ W.tUndo=[cur]; return true; }
+  W.tRedo.push(cur); const t=W.tUndo[W.tUndo.length-1]; applyText(c, t); W.tKind=null; return true;
+}
+function textRedo(){
+  const c=W.editing && els.get(W.editing)?.querySelector('.content'); if(!c || !W.tRedo?.length) return false;
+  const cur=c.innerText.replace(/\n$/,''); if(W.tUndo[W.tUndo.length-1]!==cur) W.tUndo.push(cur);
+  const t=W.tRedo.pop(); W.tUndo.push(t); applyText(c, t); W.tKind=null; return true;
+}
+itemsLayer.addEventListener('beforeinput', e=>{
+  const c=e.target.closest('.content'); if(!c || !W.editing || !W.tUndo) return;
+  const type=e.inputType;
+  if(type==='historyUndo'){ e.preventDefault(); textUndo(); return; }
+  if(type==='historyRedo'){ e.preventDefault(); textRedo(); return; }
+  const now=Date.now(), del=type.startsWith('delete'), kind=del?'del':'ins';
+  const ch=type==='insertText' ? (e.data||'') : '';
+  const before=c.innerText.replace(/\n$/,''), off=caretOffset(c), prev=off ? before[off-1] : '';
+  const wordStart = kind==='ins' && ch && !/\s/.test(ch) && (!prev || /\s/.test(prev));
+  if(kind!==W.tKind || wordStart || /Paragraph|LineBreak|Paste|Drop/.test(type) || now-W.tAt>1500) textCheckpoint(c);
+  W.tKind=kind; W.tAt=now; W.tRedo=[];
+});
+itemsLayer.addEventListener('input', e=>{ const c=e.target.closest('.content'); if(!c) return; const it=find(c.parentElement.dataset.id); if(it){ it.text=c.innerText; saveSoon(); Live.text(it.id, it.text); updUndo(); } });
 itemsLayer.addEventListener('paste', e=>{ if(!e.target.closest('.content')) return; e.preventDefault(); document.execCommand('insertText', false, e.clipboardData.getData('text/plain')); });
 itemsLayer.addEventListener('focusout', e=>{ const c=e.target.closest('.content'); if(c && W.editing===c.parentElement.dataset.id) setTimeout(()=>{ if(W.editing && document.activeElement!==c) endEdit(); }, 0); });
 
@@ -1892,11 +1982,11 @@ vp.addEventListener('pointermove', e=>{
   drag.moved=true;
   const p=toWorld(e.clientX,e.clientY), z=W.board.view.z;
   if(drag.type==='pan'){ W.board.view.x=drag.vx+dxs; W.board.view.y=drag.vy+dys; viewChanged(); }
-  else if(drag.type==='move'){ const dx=dxs/z, dy=dys/z; drag.orig.forEach(o=>{ o.i.x=Math.round(o.x+dx); o.i.y=Math.round(o.y+dy); }); renderItems(); renderLinks(); placeCtx(); }
+  else if(drag.type==='move'){ const dx=dxs/z, dy=dys/z; drag.orig.forEach(o=>{ o.i.x=Math.round(o.x+dx); o.i.y=Math.round(o.y+dy); }); renderItems(); renderLinks(); placeCtx(); Live.move(drag.orig.map(o=>o.i)); }
   else if(drag.type==='resize'){
     const it=drag.it; let w=Math.max(40, drag.ow+(p.x-drag.p.x)), h=Math.max(30, drag.oh+(p.y-drag.p.y));
     if(it.type==='image') h=w*drag.oh/drag.ow;
-    it.w=Math.round(w); it.h=Math.round(h); renderItems(); renderLinks(); placeCtx();
+    it.w=Math.round(w); it.h=Math.round(h); renderItems(); renderLinks(); placeCtx(); Live.move([it]);
   }
   else if(drag.type==='link'){
     const a=find(drag.from), q=edgePoint(a,p.x,p.y,0);
@@ -1976,7 +2066,12 @@ function renderCtx(){
   if(W.selLink){
     const l=W.board.links.find(x=>x.id===W.selLink);
     h+=LINE_COLORS.map(c=>`<button class="sw" style="background:${c}" data-act="lcolor" data-v="${c}" aria-pressed="${l.color===c}" title="Line colour"></button>`).join('');
-    h+=`<span class="vsep"></span><button class="ibtn" data-act="arrow" aria-pressed="${l.arrow}" title="Arrowhead on or off">${ICON.arrow}</button>`;
+    const opt=(list,v)=>list.map(([k,n])=>`<option value="${k}" ${v===k?'selected':''}>${n}</option>`).join('');
+    h+=`<span class="vsep"></span><select data-act="lpath" aria-label="Line shape">${opt(LINE_PATHS,l.path||'straight')}</select>`;
+    h+=`<select data-act="ldash" aria-label="Line pattern">${opt([['solid','Solid'],['dashed','Dashed'],['dotted','Dotted']],l.dash||'solid')}</select>`;
+    h+=`<select data-act="lwidth" aria-label="Line thickness">${opt([['thin','Thin'],['normal','Medium'],['thick','Thick']],l.width||'normal')}</select>`;
+    h+=`<select data-act="lheads" aria-label="Arrowheads">${opt(HEADS,headsOf(l))}</select>`;
+    h+=`<select data-act="lhead" aria-label="Arrowhead style">${opt(HEAD_KINDS,l.head||'filled')}</select>`;
     h+=`<span class="vsep"></span><button class="ibtn" data-act="delete" title="Delete connector (Delete)">${ICON.del}</button>`;
   } else {
     const types=new Set(items.map(i=>i.type)), one=types.size===1?[...types][0]:null, first=items[0];
@@ -2021,6 +2116,8 @@ $('#ctx').addEventListener('change', e=>{
   const s=e.target.closest('select'); if(!s) return;
   const a=s.dataset.act;
   if(a==='shape') setOnSel(i=>i.shape=s.value);
+  if(/^l(path|dash|width|heads|head)$/.test(a) && W.selLink) mutate(()=>{ const l=W.board.links.find(x=>x.id===W.selLink); if(!l) return;
+    if(a==='lheads'){ l.heads=s.value; l.arrow=s.value!=='none'; } else l[{lpath:'path',ldash:'dash',lwidth:'width',lhead:'head'}[a]]=s.value; });
   if(a==='fs') setOnSel(i=>i.fs=+s.value);
   if(a==='label'){
     if(s.value==='__new'){ openLabels(true); renderCtx(); return; }
@@ -2104,7 +2201,12 @@ document.addEventListener('keydown', e=>{
   if(!W.board || $('#ws').hidden || document.querySelector('dialog[open]')) return;
   const tag=document.activeElement?.tagName, typing=/INPUT|TEXTAREA|SELECT/.test(tag);
   const mod=e.ctrlKey||e.metaKey, k=e.key.toLowerCase();
-  if(W.editing){ if(e.key==='Escape' || (e.key==='Enter' && mod)){ e.preventDefault(); endEdit(); vp.focus(); } return; }
+  if(W.editing){
+    if(e.key==='Escape' || (e.key==='Enter' && mod)){ e.preventDefault(); endEdit(); vp.focus(); }
+    else if(mod && k==='z'){ e.preventDefault(); e.shiftKey?textRedo():textUndo(); }
+    else if(mod && k==='y'){ e.preventDefault(); textRedo(); }
+    return;
+  }
   if(typing) return;
   if(mod && k==='z'){ e.preventDefault(); e.shiftKey?redo():undo(); return; }
   if(mod && k==='y'){ e.preventDefault(); redo(); return; }
@@ -2345,6 +2447,70 @@ const Recon = (()=>{
   $('#rc-connect').onclick = ()=>{ if(data()){ token=null; } sync(); };
   $('#rc-sync').onclick = ()=>sync();
   return { render };
+})();
+
+/* ---------------- Live: see other people's pointers, selections, moves and typing at once ----------------
+   Sent over the board's realtime channel as short broadcast messages. Nothing here is saved; the normal save still stores the result. */
+const Live = (()=>{
+  const holders = new Map();   // user id -> {ids:Set, editing, name, color, t}
+  const cursors = new Map();   // user id -> {el, t}
+  let lastSel = '', moveQ = new Map(), moveT = 0, textT = 0, textQ = null, curT = 0, curQ = null;
+  const on = () => S && S.chan && cloud() && W.board && S.id===W.board.id;
+  const send = payload => { try{ S.chan.send({ type:'broadcast', event:'live', payload:{ ...payload, by:me.id, name:(me.name||'').split(' ')[0]||'Someone' } }); }catch(e){} };
+  function holder(id){ for(const h of holders.values()) if(h.ids.has(id)) return { name:h.name, color:h.color, editing:h.editing===id }; return null; }
+  function selChanged(){
+    if(!on()) return;
+    const sig = [...W.sel].sort().join(',') + '|' + (W.editing||'');
+    if(sig===lastSel) return; lastSel = sig;
+    send({ t:'sel', ids:[...W.sel], editing:W.editing||null });
+  }
+  function move(items){
+    if(!on()) return;
+    for(const i of items) moveQ.set(i.id, { id:i.id, x:i.x, y:i.y, w:i.w, h:i.h });
+    const now = Date.now();
+    if(now - moveT >= 40){ flushMove(); } else if(!move.t) move.t = setTimeout(flushMove, 40 - (now - moveT));
+  }
+  function flushMove(){ clearTimeout(move.t); move.t = 0; if(!moveQ.size || !on()) return; moveT = Date.now(); send({ t:'move', items:[...moveQ.values()] }); moveQ.clear(); }
+  function text(id, t){
+    if(!on()) return; textQ = { id, text:t };
+    if(!textT) textT = setTimeout(()=>{ textT = 0; if(textQ && on()) send({ t:'text', ...textQ }); textQ = null; }, 120);
+  }
+  function pointer(x, y){
+    if(!on()) return; curQ = { x:Math.round(x), y:Math.round(y) };
+    if(!curT) curT = setTimeout(()=>{ curT = 0; if(curQ && on()) send({ t:'cur', ...curQ }); curQ = null; }, 50);
+  }
+  function receive(p){
+    if(!p || p.by===me.id || !W.board) return;
+    const color = paColor(p.by);
+    if(p.t==='sel'){ holders.set(p.by, { ids:new Set(p.ids||[]), editing:p.editing, name:p.name, color, t:Date.now() }); renderItems(); return; }
+    if(p.t==='move'){
+      for(const m of p.items||[]){ const it = find(m.id); if(!it || (drag && drag.orig?.some(o=>o.i.id===m.id)) || (drag?.it?.id===m.id)) continue; it.x=m.x; it.y=m.y; it.w=m.w; it.h=m.h; }
+      const h = holders.get(p.by) || { ids:new Set(), name:p.name, color }; (p.items||[]).forEach(m=>h.ids.add(m.id)); h.t=Date.now(); holders.set(p.by, h);
+      renderItems(); renderLinks(); placeCtx(); return;
+    }
+    if(p.t==='text'){ const it = find(p.id); if(it && W.editing!==p.id){ it.text = p.text; renderItems(); } return; }
+    if(p.t==='cur'){
+      let c = cursors.get(p.by);
+      if(!c){ const el = document.createElement('div'); el.className='cur';
+        el.innerHTML = `<svg viewBox="0 0 24 24"><path d="M4 2l16 9-7 1.6L9.6 20z" fill="${color}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg><span style="background:${color}"></span>`;
+        $('#cursors').append(el); c = { el }; cursors.set(p.by, c); }
+      c.el.querySelector('span').textContent = p.name; c.t = Date.now(); c.el.hidden = false;
+      c.el.style.translate = `${p.x}px ${p.y}px`; c.el.style.scale = 1/(W.board.view?.z||1);
+    }
+  }
+  function prune(s){
+    const here = new Set(Object.keys(s.chan.presenceState()));
+    let changed = false;
+    for(const id of [...holders.keys()]) if(!here.has(id)){ holders.delete(id); changed = true; }
+    for(const [id,c] of [...cursors]) if(!here.has(id)){ c.el.remove(); cursors.delete(id); }
+    if(changed) renderItems();
+  }
+  function rescale(){ const z = W.board?.view?.z || 1; for(const c of cursors.values()) c.el.style.scale = 1/z; }
+  function reset(){ holders.clear(); for(const c of cursors.values()) c.el.remove(); cursors.clear(); lastSel=''; moveQ.clear(); }
+  setInterval(()=>{ const now = Date.now(); for(const c of cursors.values()) if(now - c.t > 8000) c.el.hidden = true; }, 2000);
+  vp.addEventListener('pointermove', e=>{ if(e.pointerType==='mouse' && W.board){ const p = toWorld(e.clientX, e.clientY); pointer(p.x, p.y); } });
+  vp.addEventListener('pointerleave', ()=>{ if(on()) send({ t:'cur', x:-99999, y:-99999 }); });
+  return { holder, selChanged, move, text, receive, prune, reset, rescale };
 })();
 </script>
 </body>
