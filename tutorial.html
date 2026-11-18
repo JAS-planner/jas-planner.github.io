@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="tl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paano gamitin ang JAS</title>
+<meta name="description" content="Step-by-step na tutorial ng JAS, may screenshots ng bawat hakbang.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cmask id=%27m%27%3E%3Crect width=%2764%27 height=%2764%27 fill=%27%23fff%27/%3E%3Cpath d=%27M40 22V37A11 11 0 0 1 29 48H25%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%276.5%27 stroke-linecap=%27round%27/%3E%3Crect x=%2731%27 y=%2710%27 width=%2718%27 height=%2716%27 rx=%273.5%27/%3E%3Ccircle cx=%2721%27 cy=%2748%27 r=%276.5%27/%3E%3C/mask%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23CCFF00%27 mask=%27url(%23m)%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --lime:#CCFF00; --lime-warm:#E3EF26; --forest-mid:#076653; --forest-deep:#0C342C; --forest-darkest:#06231D; --ink:#090909; --cream:#FFFDEE; --mint:#E2FBCE;
+  --grad-lime:linear-gradient(135deg,#CCFF00 0%,#E3EF26 100%);
+  --grad-forest:linear-gradient(135deg,#06231D 0%,#0C342C 50%,#076653 100%);
+  --grad-cream:linear-gradient(180deg,#FFFDEE 0%,#E2FBCE 100%);
+  --line:rgba(226,251,206,.16); --shadow-lime:0 8px 24px rgba(204,255,0,.32); --shadow-deep:0 20px 50px rgba(9,9,9,.45);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;min-height:100vh;background:linear-gradient(160deg,#090909 0%,#06231D 45%,#0C342C 100%) fixed;color:var(--cream);font:16px/1.6 "Plus Jakarta Sans",system-ui,sans-serif}
+h1,h2,h3{line-height:1.15;letter-spacing:-.03em;margin:0;font-weight:800}
+a{color:var(--lime)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px))}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;background:rgba(6,35,29,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,251,206,.14)}
+.top .wrap{display:flex;align-items:center;gap:14px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;color:var(--cream);text-decoration:none;font-weight:800;font-size:1.25rem}
+.logo svg{width:34px;height:34px}
+.top .grow{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:.72rem 1.2rem;font:800 .92rem "Plus Jakarta Sans",sans-serif;background:var(--grad-lime);color:var(--ink);box-shadow:var(--shadow-lime);text-decoration:none;cursor:pointer;transition:transform .24s cubic-bezier(.25,.8,.25,1),filter .24s;white-space:nowrap}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.btn.ghost{background:transparent;color:var(--cream);box-shadow:inset 0 0 0 1px rgba(226,251,206,.3);font-weight:600}
+.btn.ghost:hover{color:var(--lime);box-shadow:inset 0 0 0 1px var(--lime);transform:none}
+:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+/* hero */
+.hero{padding:56px 0 28px}
+.pill{display:inline-flex;gap:6px;padding:6px 14px;border-radius:999px;font-size:.76rem;font-weight:700;letter-spacing:.03em;background:rgba(204,255,0,.15);color:var(--lime);border:1px solid rgba(204,255,0,.35)}
+.hero h1{font-size:clamp(2.2rem,5.5vw,3.8rem);margin:18px 0 14px;max-width:16ch}
+.hero h1 em{font-style:normal;background:var(--grad-lime);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mint);opacity:.9;max-width:60ch;font-size:1.06rem;margin:0}
+.legend{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:22px;padding:14px 18px;border-radius:16px;background:rgba(9,9,9,.45);border:1px solid rgba(226,251,206,.14);font-size:.9rem;color:var(--mint);max-width:640px}
+.legend>span:last-child{flex:1;min-width:200px}
+.legend .ring{width:46px;height:30px;border:3px solid var(--lime);border-radius:10px;box-shadow:0 0 16px rgba(204,255,0,.7);position:relative;flex:none}
+.legend .ring b{position:absolute;left:-12px;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--lime);color:var(--forest-darkest);display:grid;place-items:center;font-size:.75rem}
+/* table of contents */
+.toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:28px 0 8px;padding:0;list-style:none;counter-reset:toc}
+.toc a{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(9,9,9,.4);color:var(--cream);text-decoration:none;font-weight:600;font-size:.92rem;transition:all .24s cubic-bezier(.25,.8,.25,1)}
+.toc a:hover{border-color:rgba(204,255,0,.5);background:rgba(7,102,83,.35);transform:translateX(2px)}
+.toc a span{flex:none;width:30px;height:30px;border-radius:9px;background:var(--grad-lime);color:var(--ink);display:grid;place-items:center;font-weight:800;font-size:.8rem}
+/* parts */
+.part{margin-top:56px}
+.part-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.part-h .eyebrow{font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--lime)}
+.part-h h2{font-size:clamp(1.6rem,3vw,2.2rem);width:100%}
+/* step card */
+.step{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:28px;align-items:center;padding:26px;margin-bottom:22px;border-radius:24px;background:linear-gradient(155deg,#0C342C 0%,#06231D 60%,#090909 100%);border:1px solid rgba(226,251,206,.16)}
+.step:nth-child(even of .step){grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr)}
+.step:nth-child(even of .step) .txt{order:2}
+.num{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--grad-lime);color:var(--ink);font-weight:800;margin-bottom:12px;box-shadow:var(--shadow-lime)}
+.step h3{font-size:1.4rem;margin-bottom:10px}
+.step ol{margin:0;padding-left:1.2rem;display:grid;gap:6px;color:var(--mint)}
+.step ol b{color:var(--cream)}
+.tip{margin:14px 0 0;padding:10px 14px;border-radius:12px;background:rgba(204,255,0,.1);border:1px solid rgba(204,255,0,.28);font-size:.88rem;color:var(--mint)}
+.tip::before{content:"💡 Tip: ";font-weight:800;color:var(--lime)}
+kbd{font:700 .78rem/1 ui-monospace,Consolas,monospace;background:rgba(255,255,255,.08);border:1px solid rgba(226,251,206,.25);border-bottom-width:2px;border-radius:6px;padding:.18rem .42rem;color:var(--cream);white-space:nowrap}
+.shot{display:block;padding:0;border:0;background:none;cursor:zoom-in;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-deep);outline-offset:4px;width:100%}
+.shot img{display:block;width:100%;height:auto;border-radius:16px;border:1px solid rgba(204,255,0,.25)}
+.shot.phone{max-width:280px;margin:0 auto}
+.cap{font-size:.8rem;color:var(--mint);opacity:.7;margin:8px 2px 0;text-align:center}
+.cream{background:var(--grad-cream);color:var(--ink);border-color:rgba(7,102,83,.25)}
+.cream ol,.cream .cap{color:#16302A}
+.cream ol b{color:var(--ink)}
+.cream .tip{background:rgba(6,35,29,.08);border-color:rgba(7,102,83,.3);color:#16302A}
+.cream .tip::before{color:var(--forest-mid)}
+.cream kbd{background:#fff;color:var(--ink);border-color:rgba(7,102,83,.35)}
+/* shortcuts */
+.keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;padding:0;margin:0;list-style:none}
+.keys li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;border-radius:14px;background:rgba(9,9,9,.45);border:1px solid var(--line);color:var(--mint);font-size:.92rem}
+.keys li span:last-child{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.end{margin:56px 0 0;padding:34px;border-radius:24px;background:var(--grad-forest);border:1px solid rgba(204,255,0,.25);display:flex;gap:18px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.end h2{font-size:1.7rem}
+.end p{margin:6px 0 0;color:var(--mint)}
+footer{padding:36px 0 48px;color:var(--mint);opacity:.7;font-size:.85rem}
+/* lightbox */
+dialog{border:0;padding:0;background:transparent;max-width:min(1280px,96vw);max-height:94vh}
+dialog::backdrop{background:rgba(0,0,0,.82);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+dialog img{display:block;max-width:100%;max-height:88vh;border-radius:14px;border:1px solid rgba(204,255,0,.35)}
+dialog p{margin:10px 0 0;text-align:center;color:var(--cream);font-weight:600}
+dialog button{position:fixed;top:14px;right:14px;width:44px;height:44px;border-radius:12px;border:1px solid rgba(204,255,0,.4);background:rgba(9,9,9,.85);color:var(--lime);font-size:1.3rem;cursor:pointer}
+@media (max-width:820px){
+  .step,.step:nth-child(even of .step){grid-template-columns:1fr;padding:20px;gap:18px}
+  .step:nth-child(even of .step) .txt{order:0}
+  .top .btn.ghost{display:none}
+  .hero{padding-top:36px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <mask id="jas-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><path d="M40 22 V37 A11 11 0 0 1 29 48 H25" fill="none" stroke="#000" stroke-width="6.5" stroke-linecap="round"/><rect x="31" y="10" width="18" height="16" rx="3.5" fill="#000"/><circle cx="21" cy="48" r="6.5" fill="#000"/></mask>
+  <linearGradient id="jas-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#CCFF00"/><stop offset=".55" stop-color="#E3EF26"/><stop offset="1" stop-color="#076653"/></linearGradient>
+</defs></svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="./" aria-label="Bumalik sa JAS"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="url(#jas-g)" mask="url(#jas-cut)"/></svg>JAS</a>
+    <span class="grow"></span>
+    <a class="btn ghost" href="#shortcuts">Shortcuts</a>
+    <a class="btn" href="./">Buksan ang JAS →</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <span class="pill">✦ Tutorial</span>
+    <h1>Paano gamitin ang <em>JAS</em>, step by step.</h1>
+    <p>Mula pag-sign up hanggang sa pag-share ng board sa mga kasama mo. Bawat hakbang ay may totoong screenshot ng JAS. I-click ang larawan para lumaki.</p>
+    <div class="legend"><span class="ring" aria-hidden="true"><b>1</b></span><span>Ang <b style="color:var(--lime)">lime na kahon</b> sa screenshot ang pipindutin mo. Ang numero ay sumusunod sa mga hakbang sa tabi nito.</span></div>
+    <ol class="toc">
+      <li><a href="#s1"><span>01</span>Gumawa ng account</a></li>
+      <li><a href="#s2"><span>02</span>Ang sidebar</a></li>
+      <li><a href="#s3"><span>03</span>Gumawa ng board</a></li>
+      <li><a href="#s4"><span>04</span>Sticky notes at text</a></li>
+      <li><a href="#s5"><span>05</span>Kulay at label</a></li>
+      <li><a href="#s6"><span>06</span>Shapes</a></li>
+      <li><a href="#s7"><span>07</span>Pagdugtungin ng arrow</a></li>
+      <li><a href="#s8"><span>08</span>Select many at group</a></li>
+      <li><a href="#s9"><span>09</span>Table at chart</a></li>
+      <li><a href="#s10"><span>10</span>Drawing at eraser</a></li>
+      <li><a href="#s11"><span>11</span>Kulay ng board</a></li>
+      <li><a href="#s12"><span>12</span>I-lock ang notes</a></li>
+      <li><a href="#s13"><span>13</span>I-share ang board</a></li>
+      <li><a href="#s14"><span>14</span>Sundan ang kasama</a></li>
+      <li><a href="#s15"><span>15</span>Profile mo</a></li>
+      <li><a href="#s16"><span>16</span>Feedback at review</a></li>
+      <li><a href="#s17"><span>17</span>Sa phone</a></li>
+    </ol>
+  </section>
+
+  <section class="part" aria-labelledby="p1">
+    <div class="part-h"><span class="eyebrow">Part 1</span><h2 id="p1">Pagsisimula</h2></div>
+
+    <article class="step cream" id="s1">
+      <div class="txt"><span class="num">01</span><h3>Gumawa ng account</h3>
+        <ol><li>Pindutin ang <b>Sign up</b> sa itaas ng form.</li><li>Ilagay ang pangalan, email at password (8 characters pataas).</li><li>I-check ang Terms, tapos pindutin ang <b>Create account</b>.</li></ol>
+        <p class="tip">May account ka na? Gamitin ang <b>Sign in</b> tab. I-check ang “Keep me signed in” para hindi ka na mag-login ulit.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/01-signup.jpg" alt="Sign up form ng JAS, naka-highlight ang Sign up tab at ang Create account button" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s2">
+      <div class="txt"><span class="num">02</span><h3>Ang sidebar sa kaliwa</h3>
+        <ol><li><b>Pages:</b> About JAS (Page 1), Boards (Page 2), Feedback &amp; Reviews (Page 3).</li><li><b>Modes:</b> College Recon para sa Google Classroom deadlines, at AI connector.</li><li>Sa baba ang <b>profile card</b> mo at ang Log out.</li></ol>
+        <p class="tip">Sa phone, pindutin ang ☰ button sa taas para lumabas ang sidebar.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/02-sidebar.jpg" alt="About page ng JAS, naka-highlight ang sidebar menu at ang profile card" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s3">
+      <div class="txt"><span class="num">03</span><h3>Gumawa ng board</h3>
+        <ol><li>Pumunta sa <b>Boards</b> sa sidebar.</li><li>Pindutin ang <b>+ Create board</b>.</li><li>Bubukas ang blangkong board. I-click ang pangalan sa taas para palitan ito, halimbawa “Plano ngayong linggo”.</li></ol>
+        <p class="tip">Automatic ang save. Makikita mo ang “Saving…” at “Saved” sa taas ng board.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/03-create.jpg" alt="Boards page, naka-highlight ang Create board button" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+  </section>
+
+  <section class="part" aria-labelledby="p2">
+    <div class="part-h"><span class="eyebrow">Part 2</span><h2 id="p2">Sa loob ng board</h2></div>
+
+    <article class="step" id="s4">
+      <div class="txt"><span class="num">04</span><h3>Sticky notes at text</h3>
+        <ol><li>Pindutin ang <b>sticky note</b> tool (<kbd>N</kbd>), tapos i-click kahit saan sa board.</li><li>Para sa heading, gamitin ang <b>Text</b> tool (<kbd>T</kbd>).</li><li>I-type ang laman, tapos pindutin ang <kbd>Esc</kbd> kapag tapos na.</li></ol>
+        <p class="tip">Mas mabilis: i-double-click ang bakanteng lugar para magdagdag ng sticky note. I-double-click ang note para i-edit ulit.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/04-notes.jpg" alt="Board na may tatlong sticky notes at isang heading, naka-highlight ang sticky note at text tools" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s5">
+      <div class="txt"><span class="num">05</span><h3>Kulay, laki at label</h3>
+        <ol><li>I-click ang isang note. Lalabas ang toolbar sa itaas nito.</li><li>Pumili ng kulay, o pindutin ang <b>color wheel</b> para sa kahit anong kulay.</li><li>Dito rin ang laki ng text (S, M, L), label, Lock, duplicate at delete.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/05-colors.jpg" alt="Napiling sticky note na naging berde, naka-highlight ang toolbar ng kulay" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s6">
+      <div class="txt"><span class="num">06</span><h3>Shapes para sa diagram</h3>
+        <ol><li>Pindutin ang <b>Shape</b> tool (<kbd>S</kbd>).</li><li>Pumili sa menu: rectangle, circle, diamond, start/end, database at iba pa.</li><li>I-click sa board para ilagay, tapos i-type ang laman.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/06-shapes.jpg" alt="Bukas ang shape menu na may siyam na hugis" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s7">
+      <div class="txt"><span class="num">07</span><h3>Pagdugtungin ng arrow</h3>
+        <ol><li>Pindutin ang <b>Connector</b> tool (<kbd>C</kbd>).</li><li>I-click ang unang note, tapos i-click ang pangalawa. May arrow na sa pagitan nila.</li><li>Kapag ginalaw mo ang note, susunod ang arrow.</li></ol>
+        <p class="tip">Pwede ring i-drag ang berdeng tuldok sa gilid ng napiling note papunta sa ibang note.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/07-connect.jpg" alt="Tatlong notes na naka-arrow papunta sa bilog na Tapos na" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s8">
+      <div class="txt"><span class="num">08</span><h3>Pumili ng marami at i-group</h3>
+        <ol><li>Pindutin ang <b>Select many</b> tool (<kbd>M</kbd>).</li><li>I-drag ang kahon paikot sa mga notes na gusto mo. Lahat ng nasa loob ay mapipili.</li><li>I-drag ang isa para sabay-sabay silang gumalaw. Pindutin ang <b>Group</b> (<kbd>Ctrl</kbd>+<kbd>G</kbd>) para lagi silang magkasama.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/08-select-many.jpg" alt="Kahon na naka-drag paikot sa tatlong sticky notes" loading="lazy" width="1280" height="800"></button>
+        <button class="shot" data-zoom style="margin-top:12px"><img src="tutorial/08b-group.jpg" alt="Tatlong napiling notes, naka-highlight ang Group button" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s9">
+      <div class="txt"><span class="num">09</span><h3>Table at chart para sa statistics</h3>
+        <ol><li>Pindutin ang <b>Diagram, table at chart</b> button.</li><li>Pumili: Flowchart, Table, Bar chart, Line chart, Pie chart o Statistics.</li><li>I-double-click ang cell ng table para palitan ang numero. Kusang nag-uupdate ang chart.</li></ol>
+        <p class="tip">Sa table, <kbd>Enter</kbd> para bumaba sa susunod na row at <kbd>Tab</kbd> para lumipat sa kanan.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/09-insert.jpg" alt="Bukas ang menu: Flowchart, Table, Bar chart, Line chart, Pie chart, Statistics" loading="lazy" width="1280" height="800"></button>
+        <button class="shot" data-zoom style="margin-top:12px"><img src="tutorial/10-table-chart.jpg" alt="Table ng sales bawat buwan at bar chart na galing dito" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s10">
+      <div class="txt"><span class="num">10</span><h3>Drawing, highlighter at eraser</h3>
+        <ol><li>Pindutin ang <b>Draw</b> tool (<kbd>P</kbd>).</li><li>Pumili ng Pen, Highlighter o Eraser (<kbd>E</kbd>), kulay at kapal.</li><li>Gumuhit kahit saan. Para magbura, i-drag ang Eraser sa guhit.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/11-draw.jpg" alt="Bukas ang drawing menu, may bilog na iginuhit paikot sa chart" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s11">
+      <div class="txt"><span class="num">11</span><h3>Kulay ng board</h3>
+        <ol><li>Pindutin ang <b>Board background</b> button.</li><li>Pumili ng puti, cream, berde, itim o iba pa.</li><li>Gamitin ang color wheel para sa sarili mong kulay.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/12-background.jpg" alt="Bukas ang Board background menu na may mga kulay" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s12">
+      <div class="txt"><span class="num">12</span><h3>I-lock para hindi magalaw</h3>
+        <ol><li>Pumili ng note (o grupo ng notes).</li><li>Pindutin ang <b>Lock</b> sa toolbar, o <kbd>Ctrl</kbd>+<kbd>L</kbd>.</li><li>May lock icon na ang note. Hindi na ito magagalaw, ma-eedit o mabubura hanggang i-<b>Unlock</b>.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/13-lock.jpg" alt="Naka-lock na sticky note na may Locked by you at Unlock button" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+  </section>
+
+  <section class="part" aria-labelledby="p3">
+    <div class="part-h"><span class="eyebrow">Part 3</span><h2 id="p3">Kasama ang ibang tao</h2></div>
+
+    <article class="step" id="s13">
+      <div class="txt"><span class="num">13</span><h3>I-share ang board</h3>
+        <ol><li>Sa board, pindutin ang <b>Share</b> sa taas.</li><li>Ilagay ang JAS email ng kasama mo at pumili: <b>Can edit</b> (editor) o <b>Can view</b> (viewer lang).</li><li>Pindutin ang <b>Add</b>. Lalabas na ang board sa Boards page niya.</li></ol>
+        <p class="tip">Ang owner lang ang nagdadagdag at nagpapalit ng access. Pwede ka ring maglagay ng ibang pangalan mo para sa board na ito.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/14-share.jpg" alt="Share dialog na may email field, Can edit na pagpipilian at listahan ng tao sa board" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s14">
+      <div class="txt"><span class="num">14</span><h3>Live at sundan ang view ng kasama</h3>
+        <ol><li>Kapag sabay kayong nasa board, makikita mo ang larawan niya sa taas, ang cursor niya at ang ginagalaw niya.</li><li>I-click ang larawan niya para <b>sundan ang view</b> niya. Kung saan siya tumingin, doon ka rin.</li><li>Pindutin ang <b>Stop</b> para tumigil sa pagsunod.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/15-follow.jpg" alt="Board ni Ben na sumusunod sa view ni Ana, may Following Ana na bar" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+  </section>
+
+  <section class="part" aria-labelledby="p4">
+    <div class="part-h"><span class="eyebrow">Part 4</span><h2 id="p4">Account at iba pa</h2></div>
+
+    <article class="step" id="s15">
+      <div class="txt"><span class="num">15</span><h3>Ang profile mo</h3>
+        <ol><li>I-click ang profile card sa baba ng sidebar.</li><li>Palitan ang larawan, pangalan at bio mo.</li><li>Pindutin ang <b>Save profile</b>. Makikita ng mga kasama mo ito sa Share list.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/16-profile.jpg" alt="Profile dialog na may larawan, pangalan at bio" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step cream" id="s16">
+      <div class="txt"><span class="num">16</span><h3>Feedback at review</h3>
+        <ol><li>Pumunta sa <b>Feedback &amp; Reviews</b> sa sidebar.</li><li>Pumili: Suggestion, Feedback o Review. Sa Review, pumili ng stars.</li><li>I-type ang mensahe at pindutin ang <b>Send</b>.</li></ol>
+        <p class="tip">Ang reviews ay makikita ng lahat. Ang suggestions at feedback ay sa JAS team lang.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/17-feedback.jpg" alt="Feedback page na may Review na napili at limang stars" loading="lazy" width="1280" height="800"></button></figure>
+    </article>
+
+    <article class="step" id="s17">
+      <div class="txt"><span class="num">17</span><h3>Sa phone</h3>
+        <ol><li>Nasa baba ng screen ang mga tools. I-swipe pakaliwa para makita ang iba pa.</li><li>I-pinch para mag-zoom, at i-drag ang bakanteng lugar para gumalaw.</li><li>Pindutin ang <b>Fit</b> para makita ang buong board.</li></ol></div>
+      <figure style="margin:0"><button class="shot phone" data-zoom><img src="tutorial/18-phone.jpg" alt="JAS board sa phone, nasa baba ang toolbar" loading="lazy" width="390" height="844"></button></figure>
+    </article>
+  </section>
+
+  <section class="part" id="shortcuts" aria-labelledby="p5">
+    <div class="part-h"><span class="eyebrow">Bonus</span><h2 id="p5">Keyboard shortcuts</h2></div>
+    <ul class="keys">
+      <li><span>Select at move</span><span><kbd>V</kbd></span></li>
+      <li><span>Gumalaw sa board</span><span><kbd>H</kbd> o hold <kbd>Space</kbd></span></li>
+      <li><span>Sticky note, text, shape</span><span><kbd>N</kbd><kbd>T</kbd><kbd>S</kbd></span></li>
+      <li><span>Connector arrow</span><span><kbd>C</kbd></span></li>
+      <li><span>Select many</span><span><kbd>M</kbd></span></li>
+      <li><span>Pen at eraser</span><span><kbd>P</kbd><kbd>E</kbd></span></li>
+      <li><span>Magdagdag ng larawan</span><span><kbd>I</kbd> o i-paste</span></li>
+      <li><span>Group / ungroup</span><span><kbd>Ctrl</kbd>+<kbd>G</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd></span></li>
+      <li><span>Lock / unlock</span><span><kbd>Ctrl</kbd>+<kbd>L</kbd></span></li>
+      <li><span>Undo / redo</span><span><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></span></li>
+      <li><span>Duplicate</span><span><kbd>Ctrl</kbd>+<kbd>D</kbd></span></li>
+      <li><span>Burahin ang napili</span><span><kbd>Delete</kbd></span></li>
+      <li><span>Fit sa screen</span><span><kbd>Shift</kbd>+<kbd>1</kbd></span></li>
+      <li><span>Pumili ng ilan</span><span><kbd>Shift</kbd>+click</span></li>
+      <li><span>Tumigil sa pag-edit</span><span><kbd>Esc</kbd></span></li>
+    </ul>
+  </section>
+
+  <section class="end">
+    <div><h2>Handa ka na!</h2><p>Gumawa ng unang board mo at simulan ang pagpaplano.</p></div>
+    <a class="btn" href="./">Buksan ang JAS →</a>
+  </section>
+</main>
+<footer><div class="wrap">© 2026 JAS · Ginawa ni Jancarl Angelo H. Santiago</div></footer>
+
+<dialog id="zoom" aria-label="Malaking larawan"><button type="button" aria-label="Isara">×</button><img alt=""><p></p></dialog>
+<script>
+const dlg=document.getElementById('zoom'), big=dlg.querySelector('img'), cap=dlg.querySelector('p');
+document.querySelectorAll('[data-zoom]').forEach(b=>b.addEventListener('click',()=>{
+  const im=b.querySelector('img'); big.src=im.src; big.alt=im.alt; cap.textContent=im.alt; dlg.showModal();
+}));
+dlg.addEventListener('click',e=>{ if(e.target!==big) dlg.close(); });
+</script>
+</body>
+</html>
