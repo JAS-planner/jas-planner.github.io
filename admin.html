@@ -181,6 +181,11 @@ th.num{text-align:right}
     </div>
 
     <div class="panel card">
+      <div class="card-h"><h2>Suggestions, feedback and reviews</h2><span class="sub" id="fb-count">From the Feedback page in JAS.</span></div>
+      <div class="tablebox"><table id="fb"></table></div>
+    </div>
+
+    <div class="panel card">
       <div class="card-h"><h2>Admins</h2><span class="sub">People who can open this panel.</span></div>
       <form class="tools" id="a-form" novalidate><input id="a-email" type="email" placeholder="Their JAS email" aria-label="Email of new admin"><button class="btn ghost" type="submit">Add admin</button></form>
       <p class="msg" id="a-msg" role="status"></p>
@@ -255,10 +260,17 @@ async function loadDash(){
   const [st, us, ss] = await Promise.all([sb.rpc('admin_stats'), sb.rpc('admin_users'), sb.rpc('admin_subscriptions')]);
   $('#refresh').disabled=false;
   if(st.error || us.error || ss.error){ $('#updated').textContent='Could not load some data. Press Refresh.'; return; }
+  loadFeedback();
   renderTiles(st.data); DAYS=st.data.signups||[]; renderChart(DAYS); USERS=us.data||[]; renderUsers(); renderSubs(ss.data||[]); renderAdmins();
   $('#updated').textContent='Updated '+new Intl.DateTimeFormat('en-PH',{hour:'numeric',minute:'2-digit'}).format(new Date());
 }
 
+async function loadFeedback(){
+  const {data,error} = await sb.from('feedback').select('kind,rating,message,name,created_at').order('created_at',{ascending:false}).limit(200);
+  if(error){ $('#fb').innerHTML='<tr><td>Feedback needs the one-time database update first.</td></tr>'; return; }
+  $('#fb-count').textContent = data.length+' message'+(data.length===1?'':'s');
+  $('#fb').innerHTML = '<tr><th>Type</th><th>From</th><th>Rating</th><th>Message</th><th>When</th></tr>' + (data.length ? data.map(f=>`<tr><td>${esc(f.kind)}</td><td>${esc(f.name||'')}</td><td>${f.rating?'★'.repeat(f.rating):'—'}</td><td style="white-space:pre-wrap;max-width:420px">${esc(f.message)}</td><td>${fmtDate(f.created_at)}</td></tr>`).join('') : '<tr><td colspan="5">Nothing yet.</td></tr>');
+}
 function renderTiles(s){
   const t = [
     ['Total users', nf.format(s.users), `+${nf.format(s.new_7d)} this week`, true],

@@ -1,0 +1,28 @@
+-- JAS: profiles (bio, picture), nickname per board, and the Feedback page.
+alter table public.profiles add column if not exists bio text check (bio is null or length(bio) <= 200);
+alter table public.profiles add column if not exists avatar text check (avatar is null or length(avatar) <= 150000);
+alter table public.board_members add column if not exists nickname text check (nickname is null or length(nickname) <= 40);
+
+create or replace function public.set_board_nickname(b uuid, nick text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  update board_members set nickname = nullif(left(trim(coalesce(nick,'')), 40), '') where board_id = b and user_id = auth.uid();
+end $$;
+grant execute on function public.set_board_nickname(uuid, text) to authenticated;
+
+create table if not exists public.feedback (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  name text check (name is null or length(name) <= 60),
+  kind text not null check (kind in ('suggestion','feedback','review')),
+  rating int check (rating between 1 and 5),
+  message text not null check (length(message) between 1 and 2000),
+  created_at timestamptz not null default now()
+);
+alter table public.feedback enable row level security;
+drop policy if exists "send own feedback" on public.feedback;
+create policy "send own feedback" on public.feedback for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists "see reviews, own messages, or all as admin" on public.feedback;
+create policy "see reviews, own messages, or all as admin" on public.feedback for select to authenticated using (kind = 'review' or user_id = auth.uid() or public.is_admin());
+drop policy if exists "delete own feedback or as admin" on public.feedback;
+create policy "delete own feedback or as admin" on public.feedback for delete to authenticated using (user_id = auth.uid() or public.is_admin());
