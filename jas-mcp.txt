@@ -31,10 +31,11 @@ async function whoIs(req: Request): Promise<string | null> {
 }
 
 class ToolError extends Error {}
-async function memberBoard(user: string, boardId: string) {
+async function memberBoard(user: string, boardId: string, write = false) {
   if (!/^[0-9a-f-]{36}$/i.test(String(boardId || ""))) throw new ToolError("board_id must be a board id from list_boards.");
-  const { data: m } = await db.from("board_members").select("board_id").eq("board_id", boardId).eq("user_id", user).maybeSingle();
+  const { data: m } = await db.from("board_members").select("board_id,role").eq("board_id", boardId).eq("user_id", user).maybeSingle();
   if (!m) throw new ToolError("No board with that id, or you don't have access to it.");
+  if (write && m.role === "viewer") throw new ToolError("You can only view this board. Ask the owner to make you an editor.");
   const { data: b, error } = await db.from("boards").select("id,title,data,updated_at").eq("id", boardId).single();
   if (error || !b) throw new ToolError("Could not open that board.");
   return b;
@@ -42,7 +43,7 @@ async function memberBoard(user: string, boardId: string) {
 // Change a board and save it the same way the JAS app does, so people with the board open see the change live.
 async function changeBoard(user: string, boardId: string, fn: (d: any) => string) {
   for (let i = 0; i < 4; i++) {
-    const b = await memberBoard(user, boardId);
+    const b = await memberBoard(user, boardId, true);
     const d = { items: [], links: [], labels: [], assets: {}, ...(b.data || {}) };
     const msg = fn(d);
     const oldRev = b.data?._rev ?? null;
@@ -92,11 +93,12 @@ const TOOLS = [
 async function callTool(user: string, name: string, a: any): Promise<string> {
   a = a || {};
   if (name === "list_boards") {
-    const { data: ms } = await db.from("board_members").select("board_id").eq("user_id", user);
+    const { data: ms } = await db.from("board_members").select("board_id,role").eq("user_id", user);
     const ids = (ms || []).map((m: any) => m.board_id);
     if (!ids.length) return "No boards yet.";
     const { data } = await db.from("boards").select("id,title,owner,updated_at,items:data->items").in("id", ids).order("updated_at", { ascending: false });
-    return JSON.stringify((data || []).map((b: any) => ({ id: b.id, title: b.title, yours: b.owner === user, items: (b.items || []).length, updated: b.updated_at })), null, 1);
+    const roleOf = Object.fromEntries((ms || []).map((m: any) => [m.board_id, m.role]));
+    return JSON.stringify((data || []).map((b: any) => ({ id: b.id, title: b.title, yours: b.owner === user, can_edit: roleOf[b.id] !== "viewer", items: (b.items || []).length, updated: b.updated_at })), null, 1);
   }
   if (name === "read_board") {
     const b = await memberBoard(user, a.board_id);
@@ -129,6 +131,7 @@ async function callTool(user: string, name: string, a: any): Promise<string> {
     return changeBoard(user, a.board_id, (d) => {
       const it = d.items.find((i: any) => i.id === a.item_id);
       if (!it || it.type === "image") throw new ToolError("No note, text or shape with that id on this board.");
+      if (it.lock) throw new ToolError("That item is locked. Unlock it in JAS first.");
       it.text = String(a.text ?? "").slice(0, 2000);
       return "Updated.";
     });

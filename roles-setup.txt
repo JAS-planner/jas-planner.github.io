@@ -1,0 +1,38 @@
+-- JAS board roles: owner, editor, viewer. Viewers can open a board but the database refuses their changes.
+create or replace function public.can_edit(b uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from board_members where board_id = b and user_id = auth.uid() and role in ('owner','editor'));
+$$;
+
+drop policy if exists "members edit boards" on public.boards;
+drop policy if exists "editors edit boards" on public.boards;
+create policy "editors edit boards" on public.boards for update using (public.can_edit(id)) with check (public.can_edit(id));
+
+-- only the owner adds people, and picks Editor or Viewer
+drop function if exists public.add_board_member(uuid, text);
+create or replace function public.add_board_member(b uuid, member_email text, p_role text default 'editor') returns json
+language plpgsql security definer set search_path = public as $$
+declare uid uuid;
+begin
+  if not exists (select 1 from boards where id = b and owner = auth.uid()) then raise exception 'Only the owner can share this board'; end if;
+  if p_role not in ('editor','viewer') then raise exception 'Role must be editor or viewer'; end if;
+  select id into uid from profiles where email = lower(trim(member_email));
+  if uid is null then return json_build_object('ok', false, 'reason', 'no_account'); end if;
+  if uid = auth.uid() then return json_build_object('ok', false, 'reason', 'self'); end if;
+  insert into board_members (board_id, user_id, role) values (b, uid, p_role)
+    on conflict (board_id, user_id) do update set role = excluded.role where board_members.role <> 'owner';
+  return json_build_object('ok', true, 'user_id', uid);
+end $$;
+
+-- the owner changes someone's role
+create or replace function public.set_member_role(b uuid, member uuid, p_role text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from boards where id = b and owner = auth.uid()) then raise exception 'Only the owner can change roles'; end if;
+  if p_role not in ('editor','viewer') then raise exception 'Role must be editor or viewer'; end if;
+  update board_members set role = p_role where board_id = b and user_id = member and role <> 'owner';
+end $$;
+
+grant execute on function public.can_edit(uuid) to authenticated;
+grant execute on function public.add_board_member(uuid, text, text) to authenticated;
+grant execute on function public.set_member_role(uuid, uuid, text) to authenticated;

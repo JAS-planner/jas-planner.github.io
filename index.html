@@ -244,6 +244,13 @@ body.online [data-local],body:not(.online) [data-online]{display:none!important}
 .mlist .pa{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:.85rem;flex:none}
 .mlist .mi{flex:1;min-width:0}.mlist .mi b{display:block;font-size:.92rem}.mlist .mi span{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
 .mlist .role{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.mlist select.role{width:auto;padding:.25rem .4rem;border-radius:8px;color:var(--fg);font-size:.8rem}
+#sh-form select{width:auto;flex:none}
+/* view-only board: viewers can look, pan, zoom and follow, but not change anything */
+#ws.readonly .tools [data-tool]:not([data-tool=select]):not([data-tool=hand]),#ws.readonly .tools .sep,#ws.readonly #ins-btn,#ws.readonly #img-btn,#ws.readonly #ctx,#ws.readonly #lp-form,#ws.readonly #b-undo,#ws.readonly #b-redo{display:none!important}
+#ws.readonly .item{cursor:default}
+.ro-tag{display:none;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:#05080a;background:#ffd166;border-radius:99px;padding:.25rem .65rem;white-space:nowrap}
+#ws.readonly .ro-tag{display:inline-flex}
 .wbar .logo .mark{width:28px;height:28px;font-size:.85rem;background:var(--green);color:var(--on-green)}
 .ibtn{border:0;background:transparent;color:var(--fg);height:36px;min-width:36px;padding:0 8px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;font-size:.88rem}
 .ibtn:hover:not(:disabled){background:var(--surface-2)}
@@ -769,6 +776,7 @@ nav.main button[aria-current="page"]{background:rgba(43,255,136,.1);color:var(--
     <button class="ibtn" id="b-back" title="Back to boards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span class="lbl">Boards</span></button>
     <div class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><use href="#jas-mark"/></svg><svg class="word" viewBox="0 0 102 44" aria-hidden="true"><use href="#jas-word" width="102" height="44"/></svg><span class="sr">JAS</span></div>
     <input id="b-title" type="text" aria-label="Board title" maxlength="80">
+    <span class="ro-tag" title="The owner gave you view-only access">View only</span>
     <span class="status" id="b-status" role="status">Saved</span>
     <span class="grow"></span>
     <button class="ibtn" id="b-undo" title="Undo (Ctrl+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></button>
@@ -944,8 +952,8 @@ nav.main button[aria-current="page"]{background:rgba(43,255,136,.1);color:var(--
 <dialog id="dlg-share">
   <div class="dlg-h"><h2>Share this board</h2><button class="x-btn" data-close aria-label="Close">×</button></div>
   <div class="dlg-b">
-    <p>People you add can open this board and edit it with you at the same time. They need a JAS account first.</p>
-    <form id="sh-form" novalidate><input id="sh-email" type="email" placeholder="Their JAS email" autocomplete="off" aria-label="Email of the person to add"><button class="btn" type="submit">Add</button></form>
+    <p>Only the owner adds people. <b>Editors</b> can change the board with you, including locking and unlocking. <b>Viewers</b> can only look. They need a JAS account first.</p>
+    <form id="sh-form" novalidate><input id="sh-email" type="email" placeholder="Their JAS email" autocomplete="off" aria-label="Email of the person to add"><select id="sh-role" aria-label="Access"><option value="editor">Can edit</option><option value="viewer">Can view</option></select><button class="btn" type="submit">Add</button></form>
     <p id="sh-msg" role="status"></p>
     <h4>People on this board</h4>
     <ul class="mlist" id="sh-list"></ul>
@@ -1477,16 +1485,30 @@ async function openBoard(id){
   if(!b.view) fitView(); else applyView();
   setTool('select'); setStatus('saved'); updUndo();
   $('#b-share').hidden = !cloud(); $('#b-people').innerHTML='';
-  if(cloud()) startSync(b);
+  setReadOnly(false);
+  if(cloud()){ startSync(b); loadMyRole(b); }
   vp.focus({preventScroll:true});
 }
+/* ---------- Roles: owner and editors change the board, viewers only look ---------- */
+async function loadMyRole(b){
+  if(!cloud() || b.owner===me.id) return setReadOnly(false);
+  const {data} = await sb.from('board_members').select('role').eq('board_id', b.id).eq('user_id', me.id).maybeSingle();
+  if(W.board===b) setReadOnly(data?.role==='viewer');
+}
+function setReadOnly(on){
+  const was=!!W.readOnly; W.readOnly=on;
+  $('#ws').classList.toggle('readonly', on); $('#b-title').readOnly=on;
+  if(on){ endEdit(); if(W.cell) commitCell(); if(!selecting()) setTool('select'); W.undo=[]; W.redo=[]; updUndo(); }
+  if(on!==was && W.board){ toast(on ? 'View only: the owner gave you access to look, not to change' : 'You can edit this board now'); render(); }
+}
+const viewOnly = () => { if(!W.readOnly) return false; toast('View only: ask the owner to make you an editor'); return true; };
 function closeBoard(){
   endEdit(); flushSave(); stopSync();
   $('#ws').hidden=true; document.body.classList.remove('in-board');
   W.board=null; showScreen('app'); showView('home');
 }
 $('#b-back').onclick = closeBoard;
-$('#b-title').addEventListener('input', e=>{ W.board.title = e.target.value; saveSoon(); });
+$('#b-title').addEventListener('input', e=>{ if(W.readOnly){ e.target.value=W.board.title||'Untitled board'; return; } W.board.title = e.target.value; saveSoon(); });
 $('#b-title').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.target.blur(); vp.focus(); } });
 $('#b-title').addEventListener('blur', e=>{ if(W.board && !e.target.value.trim()){ e.target.value='Untitled board'; W.board.title='Untitled board'; saveSoon(); } });
 
@@ -1507,7 +1529,7 @@ function saveSoon(){ setStatus('saving'); clearTimeout(saveT); saveT=setTimeout(
 function flushSave(){
   clearTimeout(saveT); saveT=null;
   const b=W.board; if(!b) return;
-  if(cloud()){ store.set('jas_view:'+b.id, b.view); return cloudSave(); }
+  if(cloud()){ store.set('jas_view:'+b.id, b.view); if(W.readOnly){ setStatus('saved'); return; } return cloudSave(); }
   // Only images still on the board are written to storage; undo history keeps the rest in memory for this visit
   const used = new Set(b.items.filter(i=>i.type==='image').map(i=>i.src));
   b.updated = Date.now();
@@ -1686,9 +1708,17 @@ async function loadMembers(){
   list.innerHTML = mem.map(m=>{
     const p=P[m.user_id]||{name:'JAS user', email:''}, you=m.user_id===me.id, owner=m.user_id===b.owner;
     const act = owner ? '' : you ? `<button class="btn ghost sm" data-leave>Leave</button>` : iOwn ? `<button class="btn ghost sm" data-remove="${m.user_id}">Remove</button>` : '';
+    const roleName = owner ? 'Owner' : m.role==='viewer' ? 'Can view' : 'Can edit';
+    const roleEl = iOwn && !owner ? `<select class="role" data-role="${m.user_id}" aria-label="Access for ${esc(p.name||p.email)}"><option value="editor" ${m.role!=='viewer'?'selected':''}>Can edit</option><option value="viewer" ${m.role==='viewer'?'selected':''}>Can view</option></select>` : `<span class="role">${roleName}</span>`;
     return `<li><span class="pa" style="background:${paColor(m.user_id)}">${esc((p.name||p.email||'?')[0].toUpperCase())}</span>
-      <span class="mi"><b>${esc(p.name||p.email)}${you?' (you)':''}</b><span>${esc(p.email)}</span></span><span class="role">${owner?'Owner':'Can edit'}</span>${act}</li>`;
+      <span class="mi"><b>${esc(p.name||p.email)}${you?' (you)':''}</b><span>${esc(p.email)}</span></span>${roleEl}${act}</li>`;
   }).join('');
+  $('#sh-form').hidden = !iOwn;
+  list.querySelectorAll('[data-role]').forEach(x=>x.onchange=async ()=>{
+    const {error} = await sb.rpc('set_member_role', { b:b.id, member:x.dataset.role, p_role:x.value });
+    shMsg(error ? (/function|schema cache/i.test(error.message) ? 'Roles need a one-time database update first.' : 'Could not change that. Check your connection.') : (x.value==='viewer' ? 'They can now only view this board.' : 'They can now edit this board.'), !!error);
+    Live.roles(); loadMembers();
+  });
   list.querySelectorAll('[data-remove]').forEach(x=>x.onclick=async ()=>{
     const {error} = await sb.from('board_members').delete().eq('board_id',b.id).eq('user_id',x.dataset.remove);
     shMsg(error ? 'Could not remove them. Check your connection.' : 'Removed from this board.', !!error); loadMembers();
@@ -1705,16 +1735,18 @@ $('#sh-form').addEventListener('submit', async e=>{
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return shMsg('Enter a valid email address.', true);
   if(email===me.email.toLowerCase()) return shMsg('That is your own email. You are already on this board.', true);
   shMsg('Adding…');
-  const {data,error} = await sb.rpc('add_board_member', { b:b.id, member_email:email });
-  if(error) return shMsg('Could not add them. Check your connection and try again.', true);
+  const role=$('#sh-role').value;
+  let {data,error} = await sb.rpc('add_board_member', { b:b.id, member_email:email, p_role:role });
+  if(error && role==='editor' && /function|schema cache/i.test(error.message)) ({data,error} = await sb.rpc('add_board_member', { b:b.id, member_email:email }));   // before the roles update
+  if(error) return shMsg(/function|schema cache/i.test(error.message) ? 'Roles need a one-time database update first. Ask Claude for the setup.' : /owner/i.test(error.message) ? 'Only the owner of this board can add people.' : 'Could not add them. Check your connection and try again.', true);
   if(!data?.ok) return shMsg('No JAS account uses that email yet. Ask them to sign up first, then add them again.', true);
-  $('#sh-email').value=''; shMsg('Added. The board now shows up in their Boards page.'); loadMembers();
+  $('#sh-email').value=''; shMsg(role==='viewer' ? 'Added as a viewer. They can open the board but not change it.' : 'Added as an editor. The board now shows up in their Boards page.'); Live.roles(); loadMembers();
 });
 
 /* ---------- History ---------- */
 function updUndo(){ $('#b-undo').disabled=!W.undo.length && !(W.editing && W.tUndo); $('#b-redo').disabled=!W.redo.length && !(W.editing && W.tRedo?.length); }
 function pushUndo(before){ W.undo.push(before); if(W.undo.length>100) W.undo.shift(); W.redo=[]; updUndo(); }
-function mutate(fn){ const before=snap(); fn(); if(snap()!==before){ pushUndo(before); saveSoon(); } render(); }
+function mutate(fn){ if(viewOnly()) return; const before=snap(); fn(); if(snap()!==before){ pushUndo(before); saveSoon(); } render(); }
 function restore(s){
   Object.assign(W.board, JSON.parse(s));
   W.sel = new Set([...W.sel].filter(id=>find(id)));
@@ -1833,6 +1865,7 @@ function paintTable(el, it){
 }
 function editCell(id, rc){
   const it=find(id), el=els.get(id); if(!it || !el) return;
+  if(viewOnly()) return;
   if(it.lock) return lockedToast([it]);
   if(W.cell) commitCell();
   const [r,c]=(rc||'0,0').split(',').map(Number);
@@ -2022,6 +2055,7 @@ const HINTS = {
 };
 const selecting = () => W.tool==='select' || W.tool==='marquee';
 function setTool(t){
+  if(W.readOnly && t!=='select' && t!=='hand') return viewOnly();
   W.tool=t; W.pendingFrom=null;
   $$('[data-tool]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.tool===t));
   vp.className = 't-'+t;
@@ -2080,6 +2114,7 @@ function withGroups(ids){ const gs=new Set(W.board.items.filter(i=>ids.has(i.id)
 function groupSel(on){ const items=selectionItems(); if(items.length<(on?2:1)) return; const g=on?uid():null; setOnSel(i=>{ if(g) i.g=g; else delete i.g; }); toast(on?`Grouped ${items.length} items: they now move together`:'Ungrouped'); }
 
 function addItem(type, p, extra={}){
+  if(viewOnly()) return null;
   const d=DEF[type]; let id;
   mutate(()=>{
     const w=extra.w||d.w, h=extra.h||d.h;
@@ -2101,6 +2136,7 @@ function addLink(from, to){
 /* ---------- Editing text ---------- */
 function startEdit(id){
   const it=find(id); if(!it || it.type==='image') return;
+  if(W.readOnly){ W.sel=withGroups(new Set([id])); render(); viewOnly(); return; }
   if(it.lock){ W.sel=withGroups(new Set([id])); render(); return lockedToast([it]); }
   if(it.type==='table') return editCell(id,'0,0');
   if(W.editing && W.editing!==id) endEdit();
@@ -2200,6 +2236,7 @@ vp.addEventListener('pointerdown', e=>{
   try{ vp.setPointerCapture(e.pointerId); }catch(_){}
 
   if(e.button===1 || W.tool==='hand' || W.space){ drag={...drag, type:'pan', vx:W.board.view.x, vy:W.board.view.y, noTap:true}; vp.classList.add('panning'); return; }
+  if(W.readOnly && id && !e.shiftKey){ W.sel=withGroups(new Set([id])); W.selLink=null; render(); drag={...drag, type:'pan', vx:W.board.view.x, vy:W.board.view.y}; return; }
   if((t.classList.contains('rh')||t.classList.contains('ch')) && find(id)?.lock){ drag=null; return lockedToast([find(id)]); }
   if(t.classList.contains('rh')){ const it=find(id); drag={...drag, type:'resize', it, ow:it.w, oh:it.h, p, before:snap()}; return; }
   if(t.classList.contains('ch')){ drag={...drag, type:'link', from:id}; return; }
@@ -2474,6 +2511,7 @@ function readImage(file){
   });
 }
 async function addImageFile(file, p){
+  if(viewOnly()) return;
   if(!file || !file.type.startsWith('image/')) return toast('That file is not an image.');
   try{
     const {url,w,h}=await readImage(file);
@@ -2815,6 +2853,7 @@ const Live = (()=>{
     $('#follow-bar').hidden = true; $('#stage').classList.remove('following');
     if(on()) send({ t:'unfollow', to:id }); if(S) paintPeople(S);
   }
+  function roles(){ if(on()) send({ t:'roles' }); }
   function cell(id, r, c, v){ if(on()) send({ t:'cell', id, r, c, v }); }
   function receive(p){
     if(!p || p.by===me.id || !W.board) return;
@@ -2822,6 +2861,7 @@ const Live = (()=>{
     if(p.t==='view'){ if(fol && fol.id===p.by) applyLeader(p); return; }
     if(p.t==='follow'){ if(p.to===me.id){ toast(p.name+' is following your view'); sendView(); } return; }
     if(p.t==='unfollow') return;
+    if(p.t==='roles'){ if(W.board) loadMyRole(W.board); return; }
     if(p.t==='cell'){ const it = find(p.id); if(it && it.rows && !(W.cell && W.cell.id===p.id)){ it.rows = it.rows.map(r=>r.slice()); while(it.rows.length<=p.r) it.rows.push([]); it.rows[p.r][p.c] = p.v; renderItems(); } return; }
     if(p.t==='sel'){ holders.set(p.by, { ids:new Set(p.ids||[]), editing:p.editing, name:p.name, color, t:Date.now() }); renderItems(); return; }
     if(p.t==='move'){
@@ -2852,7 +2892,7 @@ const Live = (()=>{
   setInterval(()=>{ const now = Date.now(); for(const c of cursors.values()) if(now - c.t > 8000) c.el.hidden = true; }, 2000);
   vp.addEventListener('pointermove', e=>{ if(e.pointerType==='mouse' && W.board){ const p = toWorld(e.clientX, e.clientY); pointer(p.x, p.y); } });
   vp.addEventListener('pointerleave', ()=>{ if(on()) send({ t:'cur', x:-99999, y:-99999 }); });
-  return { holder, selChanged, move, text, receive, prune, reset, rescale, viewMoved, follow, unfollow, following:()=>fol?.id||null, cell };
+  return { holder, selChanged, move, text, receive, prune, reset, rescale, viewMoved, follow, unfollow, following:()=>fol?.id||null, cell, roles };
 })();
 </script>
 </body>
