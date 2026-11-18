@@ -294,6 +294,12 @@ body.online [data-local],body:not(.online) [data-online]{display:none!important}
 .item .rh{right:calc(-8px / var(--z));bottom:calc(-8px / var(--z));cursor:nwse-resize;border-radius:3px}
 .item .ch{right:calc(-26px / var(--z));top:50%;margin-top:calc(-7px / var(--z));cursor:crosshair;background:var(--sel)}
 .item.solo .rh,.item.solo .ch{display:block}
+.item .lk{position:absolute;right:calc(-9px / var(--z));top:calc(-9px / var(--z));width:calc(22px / var(--z));height:calc(22px / var(--z));min-width:16px;min-height:16px;border-radius:50%;background:#17241c;color:#fff;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.35);z-index:3;pointer-events:none}
+.item .lk svg{width:62%;height:62%}
+.item.locked{cursor:not-allowed}
+.item.locked.selected{outline-style:dashed}
+#ctx .locknote{flex:none;display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted);padding:0 .4rem;white-space:nowrap}
+#ctx .locknote svg{width:15px;height:15px}
 
 .tools{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px;display:flex;flex-direction:column;gap:2px;z-index:3}
 .tools .ibtn{width:42px;height:42px}
@@ -1784,15 +1790,16 @@ function paintItem(el, it){
   const sig = it.type + '|' + (it.type==='shape'?it.shape:'') + '|' + (it.type==='image'?it.src:'');
   if(el._sig!==sig){
     el._sig=sig;
-    const handles = '<span class="who" hidden></span><span class="chip" hidden></span><i class="rh" title="Resize"></i><i class="ch" title="Drag onto another item to connect"></i>';
+    const handles = '<span class="lk" hidden title="Locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><span class="who" hidden></span><span class="chip" hidden></span><i class="rh" title="Resize"></i><i class="ch" title="Drag onto another item to connect"></i>';
     if(it.type==='image'){ el.innerHTML = `<img alt="" draggable="false">${handles}`; el.querySelector('img').src = W.board.assets[it.src] || ''; }
     else if(it.type==='table'){ el.innerHTML = `<div class="tbl"></div>${handles}`; el._tk=''; }
     else if(it.type==='chart'){ el.innerHTML = `<svg class="cv" aria-hidden="true"></svg><div class="content"></div>${handles}`; el._ck=''; }
     else el.innerHTML = (it.type==='shape'?shapeSVG(it.shape):'') + `<div class="content"></div>${handles}`;
   }
-  const solo = W.sel.size===1 && W.sel.has(it.id) && W.editing!==it.id && selecting() && !(W.cell && W.cell.id===it.id);
+  const solo = W.sel.size===1 && W.sel.has(it.id) && W.editing!==it.id && selecting() && !(W.cell && W.cell.id===it.id) && !it.lock;
   const dim = W.focusLabel && it.label!==W.focusLabel;
-  el.className = `item ${it.type}${it.type==='shape'?' '+it.shape:''}${it.top?' top':''}${W.sel.has(it.id)?' selected':''}${solo?' solo':''}${W.editing===it.id?' editing':''}${W.pendingFrom===it.id?' pending':''}${dim?' dim':''}`;
+  el.className = `item ${it.type}${it.type==='shape'?' '+it.shape:''}${it.top?' top':''}${W.sel.has(it.id)?' selected':''}${solo?' solo':''}${W.editing===it.id?' editing':''}${W.pendingFrom===it.id?' pending':''}${dim?' dim':''}${it.lock?' locked':''}`;
+  const lk = el.querySelector('.lk'); if(lk){ lk.hidden = !it.lock; if(it.lock) lk.title = 'Locked by '+(it.lock.name||'someone'); }
   let holder=null; try{ holder = Live.holder(it.id); }catch(e){}
   el.style.cssText = `left:${it.x}px;top:${it.y}px;width:${it.w}px;height:${it.h}px;z-index:${it.z}`+(it.type==='sticky'?`;background:${it.color}`:'')+(holder?`;outline:2.5px solid ${holder.color};outline-offset:3px`:'');
   const who = el.querySelector('.who');
@@ -1826,6 +1833,7 @@ function paintTable(el, it){
 }
 function editCell(id, rc){
   const it=find(id), el=els.get(id); if(!it || !el) return;
+  if(it.lock) return lockedToast([it]);
   if(W.cell) commitCell();
   const [r,c]=(rc||'0,0').split(',').map(Number);
   const td=el.querySelector(`[data-rc="${r},${c}"]`); if(!td) return;
@@ -1854,6 +1862,7 @@ function commitCell(move){
 }
 function tableOp(op){
   const it=selectionItems()[0]; if(!it || it.type!=='table') return;
+  if(it.lock) return lockedToast([it]);
   mutate(()=>{
     const rows=it.rows.map(r=>r.slice()), cols=Math.max(...rows.map(r=>r.length));
     if(op==='row+'){ rows.push(Array(cols).fill('')); it.h+=Math.round(it.fs*2.2); }
@@ -2092,6 +2101,7 @@ function addLink(from, to){
 /* ---------- Editing text ---------- */
 function startEdit(id){
   const it=find(id); if(!it || it.type==='image') return;
+  if(it.lock){ W.sel=withGroups(new Set([id])); render(); return lockedToast([it]); }
   if(it.type==='table') return editCell(id,'0,0');
   if(W.editing && W.editing!==id) endEdit();
   W.editing=id; W.editBefore=snap(); W.sel=new Set([id]); W.selLink=null;
@@ -2190,6 +2200,7 @@ vp.addEventListener('pointerdown', e=>{
   try{ vp.setPointerCapture(e.pointerId); }catch(_){}
 
   if(e.button===1 || W.tool==='hand' || W.space){ drag={...drag, type:'pan', vx:W.board.view.x, vy:W.board.view.y, noTap:true}; vp.classList.add('panning'); return; }
+  if((t.classList.contains('rh')||t.classList.contains('ch')) && find(id)?.lock){ drag=null; return lockedToast([find(id)]); }
   if(t.classList.contains('rh')){ const it=find(id); drag={...drag, type:'resize', it, ow:it.w, oh:it.h, p, before:snap()}; return; }
   if(t.classList.contains('ch')){ drag={...drag, type:'link', from:id}; return; }
   if(W.tool==='sticky'||W.tool==='text'||W.tool==='shape'){ const tool=W.tool; setTool('select'); addItem(tool,p); drag=null; return; }
@@ -2206,7 +2217,7 @@ vp.addEventListener('pointerdown', e=>{
     if(e.shiftKey){ const grp=withGroups(new Set([id])); if(W.sel.has(id)) grp.forEach(x=>W.sel.delete(x)); else grp.forEach(x=>W.sel.add(x)); }
     else if(!W.sel.has(id)) W.sel=withGroups(new Set([id]));
     W.selLink=null;
-    drag={...drag, type:'move', p, orig:selectionItems().map(i=>({i,x:i.x,y:i.y})), before:snap()};
+    drag={...drag, type:'move', p, orig:selectionItems().filter(i=>!i.lock).map(i=>({i,x:i.x,y:i.y})), before:snap(), locked:selectionItems().filter(i=>i.lock)};
     render(); return;
   }
   if(linkEl){ W.selLink=linkEl.dataset.link; W.sel.clear(); render(); drag=null; return; }
@@ -2234,6 +2245,7 @@ vp.addEventListener('pointermove', e=>{
     const hit=W.board.items.filter(i=>i.x<x1 && i.x+i.w>x0 && i.y<y1 && i.y+i.h>y0).map(i=>i.id);
     W.sel=withGroups(new Set([...drag.base, ...hit])); renderItems();
   }
+  else if(drag.type==='move' && !drag.orig.length){ if(!drag.warned){ drag.warned=true; lockedToast(drag.locked); } }
   else if(drag.type==='move'){ const dx=dxs/z, dy=dys/z; drag.orig.forEach(o=>{ o.i.x=Math.round(o.x+dx); o.i.y=Math.round(o.y+dy); }); renderItems(); renderLinks(); placeCtx(); Live.move(drag.orig.map(o=>o.i)); }
   else if(drag.type==='resize'){
     const it=drag.it; let w=Math.max(40, drag.ow+(p.x-drag.p.x)), h=Math.max(30, drag.oh+(p.y-drag.p.y));
@@ -2280,7 +2292,7 @@ function duplicateSel(){
   const items=selectionItems(); if(!items.length) return;
   mutate(()=>{
     const map={}; let z=topZ();
-    const g=uid(), copies=items.map(i=>{ const c={...i,id:uid(),x:i.x+30,y:i.y+30,z:++z}; if(c.g) c.g=g+c.g; map[i.id]=c.id; return c; });
+    const g=uid(), copies=items.map(i=>{ const c={...i,id:uid(),x:i.x+30,y:i.y+30,z:++z}; if(c.g) c.g=g+c.g; delete c.lock; map[i.id]=c.id; return c; });
     copies.forEach(c=>{ if(c.src && map[c.src]) c.src=map[c.src]; });
     W.board.items.push(...copies);
     W.board.links.filter(l=>map[l.from]&&map[l.to]).forEach(l=>W.board.links.push({...l,id:uid(),from:map[l.from],to:map[l.to]}));
@@ -2290,6 +2302,8 @@ function duplicateSel(){
 function deleteSel(){
   if(W.selLink){ mutate(()=>{ W.board.links=W.board.links.filter(l=>l.id!==W.selLink); W.selLink=null; }); return; }
   if(!W.sel.size) return;
+  const keep=selectionItems().filter(i=>i.lock);
+  if(keep.length){ keep.forEach(i=>W.sel.delete(i.id)); if(!W.sel.size){ W.sel=new Set(keep.map(i=>i.id)); return lockedToast(keep); } toast(`${keep.length} locked item${keep.length>1?'s were':' was'} kept`); }
   mutate(()=>{
     W.board.items=W.board.items.filter(i=>!W.sel.has(i.id));
     W.board.links=W.board.links.filter(l=>!W.sel.has(l.from)&&!W.sel.has(l.to));
@@ -2302,7 +2316,19 @@ function reorder(front){
     (front?[...rest,...sel]:[...sel,...rest]).forEach((i,n)=>i.z=n+1);
   });
 }
-function setOnSel(fn){ mutate(()=>selectionItems().forEach(fn)); }
+function setOnSel(fn){ const all=selectionItems(), items=all.filter(i=>!i.lock); if(!items.length && all.length) return lockedToast(all); mutate(()=>items.forEach(fn)); }
+/* ---------- Lock: a locked item can't be moved, resized, edited or deleted until it is unlocked ---------- */
+const LOCK_ANYONE = true;    // true: anyone on the board can unlock (false: only the person who locked it, or the board owner)
+const LOCK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>';
+function canUnlock(it){ if(!it.lock) return true; if(LOCK_ANYONE || !cloud() || !W.board.owner) return true; return it.lock.by===me.id || W.board.owner===me.id; }
+function lockedToast(items){ const l=(items||[]).find(i=>i.lock); toast(l ? `Locked by ${l.lock.by===me.id?'you':l.lock.name||'someone'}. Unlock it first to change it.` : 'This item is locked'); }
+function lockSel(on){
+  const items=selectionItems(); if(!items.length) return;
+  if(on){ const todo=items.filter(i=>!i.lock); if(!todo.length) return; mutate(()=>todo.forEach(i=>i.lock={ by:me.id, name:(me.name||'').split(' ')[0]||'Someone' })); toast(todo.length>1?`Locked ${todo.length} items`:'Locked: nobody can move or change it now'); }
+  else { const todo=items.filter(i=>i.lock && canUnlock(i)), blocked=items.filter(i=>i.lock && !canUnlock(i));
+    if(todo.length) mutate(()=>todo.forEach(i=>delete i.lock));
+    if(blocked.length) toast(`Only ${blocked[0].lock.name||'the person who locked it'} or the board owner can unlock ${blocked.length>1?'some of these':'this'}`); else if(todo.length) toast('Unlocked'); }
+}
 
 /* ---------- Context toolbar ---------- */
 const ICON = {
@@ -2327,6 +2353,12 @@ function renderCtx(){
     h+=`<select data-act="lheads" aria-label="Arrowheads">${opt(HEADS,headsOf(l))}</select>`;
     h+=`<select data-act="lhead" aria-label="Arrowhead style">${opt(HEAD_KINDS,l.head||'filled')}</select>`;
     h+=`<span class="vsep"></span><button class="ibtn" data-act="delete" title="Delete connector (Delete)">${ICON.del}</button>`;
+  } else if(items.some(i=>i.lock)){
+    const l=items.find(i=>i.lock).lock, can=items.filter(i=>i.lock).every(canUnlock);
+    h+=`<span class="locknote">${LOCK_ICON}Locked by ${esc(l.by===me.id?'you':l.name||'someone')}</span><span class="vsep"></span>`;
+    if(can) h+=`<button class="tbtn" data-act="unlock" title="Unlock (Ctrl+L)">Unlock</button>`;
+    if(items.some(i=>!i.lock)) h+=`<button class="tbtn" data-act="lock" title="Lock the rest (Ctrl+L)">Lock all</button>`;
+    h+=`<button class="ibtn" data-act="dup" title="Duplicate (Ctrl+D)">${ICON.dup}</button>`;
   } else {
     const types=new Set(items.map(i=>i.type)), one=types.size===1?[...types][0]:null, first=items[0];
     if(one==='table') h+=`<button class="tbtn" data-act="row+" title="Add a row">+ Row</button><button class="tbtn" data-act="col+" title="Add a column">+ Column</button><button class="tbtn" data-act="row-" title="Remove the last row">− Row</button><button class="tbtn" data-act="col-" title="Remove the last column">− Column</button><button class="tbtn" data-act="mkchart" title="Make a chart from this table">Make chart</button><span class="vsep"></span>`;
@@ -2338,6 +2370,7 @@ function renderCtx(){
     h+=`<select data-act="label" aria-label="Label"><option value="">No label</option>${W.board.labels.map(l=>`<option value="${l.id}" ${items.every(i=>i.label===l.id)?'selected':''}>${esc(l.name)}</option>`).join('')}<option value="__new">+ New label…</option></select>`;
     h+='<span class="vsep"></span>';
     if(items.length>1 && !(first.g && items.every(i=>i.g===first.g))) h+=`<button class="tbtn" data-act="group" title="Group: these items always move together (Ctrl+G)">Group</button>`;
+    h+=`<button class="tbtn" data-act="lock" title="Lock so nobody can move, change or delete it (Ctrl+L)">Lock</button>`;
     if(items.some(i=>i.g)) h+=`<button class="tbtn" data-act="ungroup" title="Ungroup (Ctrl+Shift+G)">Ungroup</button>`;
     if(items.length===1 && first.type!=='image') h+=`<button class="ibtn" data-act="edit" title="Edit text (Enter or double-click)">${ICON.edit}</button>`;
     h+=`<button class="ibtn" data-act="dup" title="Duplicate (Ctrl+D)">${ICON.dup}</button><button class="ibtn" data-act="front" title="Bring to front">${ICON.front}</button><button class="ibtn" data-act="back" title="Send to back">${ICON.back}</button><button class="ibtn" data-act="delete" title="Delete (Delete)">${ICON.del}</button>`;
@@ -2368,10 +2401,12 @@ $('#ctx').addEventListener('click', e=>{
   if(a==='delete') deleteSel();
   if(a==='front') reorder(true);
   if(a==='back') reorder(false);
-  if(a==='edit'){ const it=find([...W.sel][0]); if(it?.type==='table') editCell(it.id,'0,0'); else startEdit(it.id); }
+  if(a==='edit'){ const it=find([...W.sel][0]); if(it?.lock) return lockedToast([it]); if(it?.type==='table') editCell(it.id,'0,0'); else startEdit(it.id); }
   if(/^(row|col)[+-]$/.test(a)) tableOp(a);
   if(a==='mkchart') makeChartFromSel();
   if(a==='group') groupSel(true);
+  if(a==='lock') lockSel(true);
+  if(a==='unlock') lockSel(false);
   if(a==='ungroup') groupSel(false);
 });
 $('#ctx').addEventListener('change', e=>{
@@ -2481,6 +2516,7 @@ document.addEventListener('keydown', e=>{
   if(mod && k==='y'){ e.preventDefault(); redo(); return; }
   if(mod && k==='d'){ e.preventDefault(); duplicateSel(); return; }
   if(mod && k==='g'){ e.preventDefault(); groupSel(!e.shiftKey); return; }
+  if(mod && k==='l'){ e.preventDefault(); const it=selectionItems(); if(it.length) lockSel(!it.every(i=>i.lock)); return; }
   if(mod && k==='a'){ e.preventDefault(); setTool('select'); W.sel=new Set(W.board.items.map(i=>i.id)); render(); return; }
   if(mod && (k==='='||k==='+')){ e.preventDefault(); zoomAt(1.2); return; }
   if(mod && k==='-'){ e.preventDefault(); zoomAt(1/1.2); return; }
