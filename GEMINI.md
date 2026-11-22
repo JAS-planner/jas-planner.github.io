@@ -1,6 +1,6 @@
 # JAS: guide for AI coding assistants (Gemini and others)
 
-JAS is a planning workspace by Jancarl Angelo H. Santiago: sticky notes, shapes, arrows, tables, charts and drawing on one board, with live collaboration. It is hosted on GitHub Pages at https://jancarlsantiago2-blip.github.io/jas/ and every push to `main` goes live within a minute or two.
+JAS is a planning workspace by Jancarl Angelo H. Santiago: sticky notes, shapes, arrows, tables, charts and drawing on one board, with live collaboration. It is hosted on GitHub Pages at https://jas-planner.github.io/ and every push to `main` goes live within a minute or two.
 
 ## Ground rules
 

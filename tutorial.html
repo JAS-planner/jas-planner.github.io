@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="tl">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paano gamitin ang JAS</title>
-<meta name="description" content="Step-by-step na tutorial ng JAS, may screenshots ng bawat hakbang.">
+<title>How to use JAS</title>
+<meta name="description" content="A step-by-step JAS tutorial with a screenshot for every step.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cmask id=%27m%27%3E%3Crect width=%2764%27 height=%2764%27 fill=%27%23fff%27/%3E%3Cpath d=%27M40 22V37A11 11 0 0 1 29 48H25%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%276.5%27 stroke-linecap=%27round%27/%3E%3Crect x=%2731%27 y=%2710%27 width=%2718%27 height=%2716%27 rx=%273.5%27/%3E%3Ccircle cx=%2721%27 cy=%2748%27 r=%276.5%27/%3E%3C/mask%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23CCFF00%27 mask=%27url(%23m)%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -96,6 +96,17 @@ dialog button{position:fixed;top:14px;right:14px;width:44px;height:44px;border-r
   .hero{padding-top:36px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@keyframes jasUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes jasPop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.hero>*{animation:jasUp .65s cubic-bezier(.2,.7,.2,1) backwards}
+.hero>*:nth-child(2){animation-delay:.08s}.hero>*:nth-child(3){animation-delay:.16s}.hero>*:nth-child(4){animation-delay:.24s}.hero>*:nth-child(5){animation-delay:.32s}
+.reveal:not(.in){opacity:0}
+.reveal.in{animation:jasUp .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms) backwards}
+.step.reveal.in .num{animation:jasPop .5s .25s cubic-bezier(.3,1.6,.5,1) backwards}
+.shot img{transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.shot:hover img{transform:scale(1.02)}
+dialog[open]{animation:jasPop .25s ease-out}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
 <body>
@@ -106,203 +117,198 @@ dialog button{position:fixed;top:14px;right:14px;width:44px;height:44px;border-r
 
 <header class="top">
   <div class="wrap">
-    <a class="logo" href="./" aria-label="Bumalik sa JAS"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="url(#jas-g)" mask="url(#jas-cut)"/></svg>JAS</a>
+    <a class="logo" href="./" aria-label="Back to JAS"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="url(#jas-g)" mask="url(#jas-cut)"/></svg>JAS</a>
     <span class="grow"></span>
     <a class="btn ghost" href="#shortcuts">Shortcuts</a>
-    <a class="btn" href="./">Buksan ang JAS →</a>
+    <a class="btn" href="./">Open JAS →</a>
   </div>
 </header>
 
 <main class="wrap">
   <section class="hero">
     <span class="pill">✦ Tutorial</span>
-    <h1>Paano gamitin ang <em>JAS</em>, step by step.</h1>
-    <p>Mula pag-sign up hanggang sa pag-share ng board sa mga kasama mo. Bawat hakbang ay may totoong screenshot ng JAS. I-click ang larawan para lumaki.</p>
-    <div class="legend"><span class="ring" aria-hidden="true"><b>1</b></span><span>Ang <b style="color:var(--lime)">lime na kahon</b> sa screenshot ang pipindutin mo. Ang numero ay sumusunod sa mga hakbang sa tabi nito.</span></div>
+    <h1>How to use <em>JAS</em>, step by step.</h1>
+    <p>From signing up to sharing a board with your team. Every step has a real screenshot of JAS. Click a picture to see it bigger.</p>
+    <div class="legend"><span class="ring" aria-hidden="true"><b>1</b></span><span>The <b style="color:var(--lime)">lime box</b> in each screenshot is what you press. Its number matches the step next to it.</span></div>
     <ol class="toc">
-      <li><a href="#s1"><span>01</span>Gumawa ng account</a></li>
-      <li><a href="#s2"><span>02</span>Ang sidebar</a></li>
-      <li><a href="#s3"><span>03</span>Gumawa ng board</a></li>
-      <li><a href="#s4"><span>04</span>Sticky notes at text</a></li>
-      <li><a href="#s5"><span>05</span>Kulay at label</a></li>
+      <li><a href="#s1"><span>01</span>Create an account</a></li>
+      <li><a href="#s2"><span>02</span>The sidebar</a></li>
+      <li><a href="#s3"><span>03</span>Create a board</a></li>
+      <li><a href="#s4"><span>04</span>Sticky notes and text</a></li>
+      <li><a href="#s5"><span>05</span>Colours and labels</a></li>
       <li><a href="#s6"><span>06</span>Shapes</a></li>
-      <li><a href="#s7"><span>07</span>Pagdugtungin ng arrow</a></li>
-      <li><a href="#s8"><span>08</span>Select many at group</a></li>
-      <li><a href="#s9"><span>09</span>Table at chart</a></li>
-      <li><a href="#s10"><span>10</span>Drawing at eraser</a></li>
-      <li><a href="#s11"><span>11</span>Kulay ng board</a></li>
-      <li><a href="#s12"><span>12</span>I-lock ang notes</a></li>
-      <li><a href="#s13"><span>13</span>I-share ang board</a></li>
-      <li><a href="#s14"><span>14</span>Sundan ang kasama</a></li>
-      <li><a href="#s15"><span>15</span>Profile mo</a></li>
-      <li><a href="#s16"><span>16</span>Feedback at review</a></li>
-      <li><a href="#s17"><span>17</span>Sa phone</a></li>
+      <li><a href="#s7"><span>07</span>Connect with arrows</a></li>
+      <li><a href="#s8"><span>08</span>Select many and group</a></li>
+      <li><a href="#s9"><span>09</span>Tables and charts</a></li>
+      <li><a href="#s10"><span>10</span>Drawing and eraser</a></li>
+      <li><a href="#s11"><span>11</span>Board colour</a></li>
+      <li><a href="#s12"><span>12</span>Lock notes</a></li>
+      <li><a href="#s13"><span>13</span>Share a board</a></li>
+      <li><a href="#s14"><span>14</span>Follow a teammate</a></li>
+      <li><a href="#s15"><span>15</span>Your profile</a></li>
+      <li><a href="#s16"><span>16</span>Feedback and reviews</a></li>
+      <li><a href="#s17"><span>17</span>On a phone</a></li>
     </ol>
   </section>
 
   <section class="part" aria-labelledby="p1">
-    <div class="part-h"><span class="eyebrow">Part 1</span><h2 id="p1">Pagsisimula</h2></div>
+    <div class="part-h"><span class="eyebrow">Part 1</span><h2 id="p1">Getting started</h2></div>
 
     <article class="step cream" id="s1">
-      <div class="txt"><span class="num">01</span><h3>Gumawa ng account</h3>
-        <ol><li>Pindutin ang <b>Sign up</b> sa itaas ng form.</li><li>Ilagay ang pangalan, email at password (8 characters pataas).</li><li>I-check ang Terms, tapos pindutin ang <b>Create account</b>.</li></ol>
-        <p class="tip">May account ka na? Gamitin ang <b>Sign in</b> tab. I-check ang “Keep me signed in” para hindi ka na mag-login ulit.</p></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/01-signup.jpg" alt="Sign up form ng JAS, naka-highlight ang Sign up tab at ang Create account button" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">01</span><h3>Create an account</h3>
+        <ol><li>Press <b>Sign up</b> at the top of the form.</li><li>Enter your name, email and a password (at least 8 characters).</li><li>Tick the Terms box, then press <b>Create account</b>.</li></ol>
+        <p class="tip">Already have an account? Use the <b>Sign in</b> tab. Tick “Keep me signed in” so you don't have to sign in again.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/01-signup.jpg" alt="JAS sign up form with the Sign up tab and Create account button highlighted" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s2">
-      <div class="txt"><span class="num">02</span><h3>Ang sidebar sa kaliwa</h3>
-        <ol><li><b>Pages:</b> About JAS (Page 1), Boards (Page 2), Feedback &amp; Reviews (Page 3).</li><li><b>Modes:</b> College Recon para sa Google Classroom deadlines, at AI connector.</li><li>Sa baba ang <b>profile card</b> mo at ang Log out.</li></ol>
-        <p class="tip">Sa phone, pindutin ang ☰ button sa taas para lumabas ang sidebar.</p></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/02-sidebar.jpg" alt="About page ng JAS, naka-highlight ang sidebar menu at ang profile card" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">02</span><h3>The sidebar on the left</h3>
+        <ol><li><b>Pages:</b> About JAS (Page 1), Boards (Page 2), Feedback &amp; Reviews (Page 3).</li><li><b>Modes:</b> College Recon for your Google Classroom deadlines, and the AI connector.</li><li>At the bottom are your <b>profile card</b> and Log out.</li></ol>
+        <p class="tip">On a phone, press the ☰ button at the top to open the sidebar.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/02-sidebar.jpg" alt="JAS About page with the sidebar menu and profile card highlighted" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s3">
-      <div class="txt"><span class="num">03</span><h3>Gumawa ng board</h3>
-        <ol><li>Pumunta sa <b>Boards</b> sa sidebar.</li><li>Pindutin ang <b>+ Create board</b>.</li><li>Bubukas ang blangkong board. I-click ang pangalan sa taas para palitan ito, halimbawa “Plano ngayong linggo”.</li></ol>
-        <p class="tip">Automatic ang save. Makikita mo ang “Saving…” at “Saved” sa taas ng board.</p></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/03-create.jpg" alt="Boards page, naka-highlight ang Create board button" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">03</span><h3>Create a board</h3>
+        <ol><li>Go to <b>Boards</b> in the sidebar.</li><li>Press <b>+ Create board</b>.</li><li>A blank board opens. Click the name at the top to rename it, for example “This week’s plan”.</li></ol>
+        <p class="tip">Saving is automatic. You will see “Saving…” and then “Saved” at the top of the board.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/03-create.jpg" alt="Boards page with the Create board button highlighted" loading="lazy" width="1280" height="800"></button></figure>
     </article>
   </section>
 
   <section class="part" aria-labelledby="p2">
-    <div class="part-h"><span class="eyebrow">Part 2</span><h2 id="p2">Sa loob ng board</h2></div>
+    <div class="part-h"><span class="eyebrow">Part 2</span><h2 id="p2">On the board</h2></div>
 
     <article class="step" id="s4">
-      <div class="txt"><span class="num">04</span><h3>Sticky notes at text</h3>
-        <ol><li>Pindutin ang <b>sticky note</b> tool (<kbd>N</kbd>), tapos i-click kahit saan sa board.</li><li>Para sa heading, gamitin ang <b>Text</b> tool (<kbd>T</kbd>).</li><li>I-type ang laman, tapos pindutin ang <kbd>Esc</kbd> kapag tapos na.</li></ol>
-        <p class="tip">Mas mabilis: i-double-click ang bakanteng lugar para magdagdag ng sticky note. I-double-click ang note para i-edit ulit.</p></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/04-notes.jpg" alt="Board na may tatlong sticky notes at isang heading, naka-highlight ang sticky note at text tools" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">04</span><h3>Sticky notes and text</h3>
+        <ol><li>Press the <b>Sticky note</b> tool (<kbd>N</kbd>), then click anywhere on the board.</li><li>For a heading, use the <b>Text</b> tool (<kbd>T</kbd>).</li><li>Type your text, then press <kbd>Esc</kbd> when you are done.</li></ol>
+        <p class="tip">Faster: double-click an empty spot to add a sticky note. Double-click a note to edit it again.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/04-notes.jpg" alt="A board with three sticky notes and a heading, with the sticky note and text tools highlighted" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s5">
-      <div class="txt"><span class="num">05</span><h3>Kulay, laki at label</h3>
-        <ol><li>I-click ang isang note. Lalabas ang toolbar sa itaas nito.</li><li>Pumili ng kulay, o pindutin ang <b>color wheel</b> para sa kahit anong kulay.</li><li>Dito rin ang laki ng text (S, M, L), label, Lock, duplicate at delete.</li></ol></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/05-colors.jpg" alt="Napiling sticky note na naging berde, naka-highlight ang toolbar ng kulay" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">05</span><h3>Colour, size and labels</h3>
+        <ol><li>Click a note. A toolbar appears above it.</li><li>Pick a colour, or press the <b>colour wheel</b> for any colour you like.</li><li>The same toolbar has text size (S, M, L), labels, Lock, duplicate and delete.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/05-colors.jpg" alt="A selected sticky note turned green, with the colour toolbar highlighted" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s6">
-      <div class="txt"><span class="num">06</span><h3>Shapes para sa diagram</h3>
-        <ol><li>Pindutin ang <b>Shape</b> tool (<kbd>S</kbd>).</li><li>Pumili sa menu: rectangle, circle, diamond, start/end, database at iba pa.</li><li>I-click sa board para ilagay, tapos i-type ang laman.</li></ol></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/06-shapes.jpg" alt="Bukas ang shape menu na may siyam na hugis" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">06</span><h3>Shapes for diagrams</h3>
+        <ol><li>Press the <b>Shape</b> tool (<kbd>S</kbd>).</li><li>Pick from the menu: rectangle, circle, diamond, start/end, database and more.</li><li>Click on the board to place it, then type its text.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/06-shapes.jpg" alt="The shape menu open with nine shapes" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s7">
-      <div class="txt"><span class="num">07</span><h3>Pagdugtungin ng arrow</h3>
-        <ol><li>Pindutin ang <b>Connector</b> tool (<kbd>C</kbd>).</li><li>I-click ang unang note, tapos i-click ang pangalawa. May arrow na sa pagitan nila.</li><li>Kapag ginalaw mo ang note, susunod ang arrow.</li></ol>
-        <p class="tip">Pwede ring i-drag ang berdeng tuldok sa gilid ng napiling note papunta sa ibang note.</p></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/07-connect.jpg" alt="Tatlong notes na naka-arrow papunta sa bilog na Tapos na" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">07</span><h3>Connect with arrows</h3>
+        <ol><li>Press the <b>Connector</b> tool (<kbd>C</kbd>).</li><li>Click the first note, then click the second one. An arrow now joins them.</li><li>When you move a note, the arrow follows.</li></ol>
+        <p class="tip">You can also drag the green dot on the side of a selected note onto another note.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/07-connect.jpg" alt="Three notes with arrows pointing to a circle that says Done!" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s8">
-      <div class="txt"><span class="num">08</span><h3>Pumili ng marami at i-group</h3>
-        <ol><li>Pindutin ang <b>Select many</b> tool (<kbd>M</kbd>).</li><li>I-drag ang kahon paikot sa mga notes na gusto mo. Lahat ng nasa loob ay mapipili.</li><li>I-drag ang isa para sabay-sabay silang gumalaw. Pindutin ang <b>Group</b> (<kbd>Ctrl</kbd>+<kbd>G</kbd>) para lagi silang magkasama.</li></ol></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/08-select-many.jpg" alt="Kahon na naka-drag paikot sa tatlong sticky notes" loading="lazy" width="1280" height="800"></button>
-        <button class="shot" data-zoom style="margin-top:12px"><img src="tutorial/08b-group.jpg" alt="Tatlong napiling notes, naka-highlight ang Group button" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">08</span><h3>Select many and group</h3>
+        <ol><li>Press the <b>Select many</b> tool (<kbd>M</kbd>).</li><li>Drag a box around the notes you want. Everything inside gets selected.</li><li>Drag one of them to move them all together. Press <b>Group</b> (<kbd>Ctrl</kbd>+<kbd>G</kbd>) to keep them together.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/08-select-many.jpg" alt="A box dragged around three sticky notes" loading="lazy" width="1280" height="800"></button>
+        <button class="shot" data-zoom style="margin-top:12px"><img src="tutorial/08b-group.jpg" alt="Three selected notes with the Group button highlighted" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s9">
-      <div class="txt"><span class="num">09</span><h3>Table at chart para sa statistics</h3>
-        <ol><li>Pindutin ang <b>Diagram, table at chart</b> button.</li><li>Pumili: Flowchart, Table, Bar chart, Line chart, Pie chart o Statistics.</li><li>I-double-click ang cell ng table para palitan ang numero. Kusang nag-uupdate ang chart.</li></ol>
-        <p class="tip">Sa table, <kbd>Enter</kbd> para bumaba sa susunod na row at <kbd>Tab</kbd> para lumipat sa kanan.</p></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/09-insert.jpg" alt="Bukas ang menu: Flowchart, Table, Bar chart, Line chart, Pie chart, Statistics" loading="lazy" width="1280" height="800"></button>
-        <button class="shot" data-zoom style="margin-top:12px"><img src="tutorial/10-table-chart.jpg" alt="Table ng sales bawat buwan at bar chart na galing dito" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">09</span><h3>Tables and charts for statistics</h3>
+        <ol><li>Press the <b>Diagram, table and chart</b> button.</li><li>Pick one: Flowchart, Table, Bar chart, Line chart, Pie chart or Statistics.</li><li>Double-click a table cell to change a number. The chart updates by itself.</li></ol>
+        <p class="tip">In a table, <kbd>Enter</kbd> moves down to the next row and <kbd>Tab</kbd> moves right.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/09-insert.jpg" alt="The menu open with Flowchart, Table, Bar chart, Line chart, Pie chart and Statistics" loading="lazy" width="1280" height="800"></button>
+        <button class="shot" data-zoom style="margin-top:12px"><img src="tutorial/10-table-chart.jpg" alt="A table of sales per month and the bar chart made from it" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s10">
-      <div class="txt"><span class="num">10</span><h3>Drawing, highlighter at eraser</h3>
-        <ol><li>Pindutin ang <b>Draw</b> tool (<kbd>P</kbd>).</li><li>Pumili ng Pen, Highlighter o Eraser (<kbd>E</kbd>), kulay at kapal.</li><li>Gumuhit kahit saan. Para magbura, i-drag ang Eraser sa guhit.</li></ol></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/11-draw.jpg" alt="Bukas ang drawing menu, may bilog na iginuhit paikot sa chart" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">10</span><h3>Drawing, highlighter and eraser</h3>
+        <ol><li>Press the <b>Draw</b> tool (<kbd>P</kbd>).</li><li>Pick Pen, Highlighter or Eraser (<kbd>E</kbd>), then a colour and thickness.</li><li>Draw anywhere. To erase, drag the Eraser over a stroke.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/11-draw.jpg" alt="The drawing menu open, with a circle drawn around the chart" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s11">
-      <div class="txt"><span class="num">11</span><h3>Kulay ng board</h3>
-        <ol><li>Pindutin ang <b>Board background</b> button.</li><li>Pumili ng puti, cream, berde, itim o iba pa.</li><li>Gamitin ang color wheel para sa sarili mong kulay.</li></ol></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/12-background.jpg" alt="Bukas ang Board background menu na may mga kulay" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">11</span><h3>Board background colour</h3>
+        <ol><li>Press the <b>Board background</b> button.</li><li>Pick white, cream, green, black or another colour.</li><li>Use the colour wheel for your own colour.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/12-background.jpg" alt="The Board background menu open with colours" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s12">
-      <div class="txt"><span class="num">12</span><h3>I-lock para hindi magalaw</h3>
-        <ol><li>Pumili ng note (o grupo ng notes).</li><li>Pindutin ang <b>Lock</b> sa toolbar, o <kbd>Ctrl</kbd>+<kbd>L</kbd>.</li><li>May lock icon na ang note. Hindi na ito magagalaw, ma-eedit o mabubura hanggang i-<b>Unlock</b>.</li></ol></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/13-lock.jpg" alt="Naka-lock na sticky note na may Locked by you at Unlock button" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">12</span><h3>Lock notes so nobody moves them</h3>
+        <ol><li>Select a note (or a group of notes).</li><li>Press <b>Lock</b> in the toolbar, or <kbd>Ctrl</kbd>+<kbd>L</kbd>.</li><li>The note now shows a lock icon. Nobody can move, edit or delete it until someone presses <b>Unlock</b>.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/13-lock.jpg" alt="A locked sticky note with Locked by you and an Unlock button" loading="lazy" width="1280" height="800"></button></figure>
     </article>
   </section>
 
   <section class="part" aria-labelledby="p3">
-    <div class="part-h"><span class="eyebrow">Part 3</span><h2 id="p3">Kasama ang ibang tao</h2></div>
+    <div class="part-h"><span class="eyebrow">Part 3</span><h2 id="p3">Working with others</h2></div>
 
     <article class="step" id="s13">
-      <div class="txt"><span class="num">13</span><h3>I-share ang board</h3>
-        <ol><li>Sa board, pindutin ang <b>Share</b> sa taas.</li><li>Ilagay ang JAS email ng kasama mo at pumili: <b>Can edit</b> (editor) o <b>Can view</b> (viewer lang).</li><li>Pindutin ang <b>Add</b>. Lalabas na ang board sa Boards page niya.</li></ol>
-        <p class="tip">Ang owner lang ang nagdadagdag at nagpapalit ng access. Pwede ka ring maglagay ng ibang pangalan mo para sa board na ito.</p></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/14-share.jpg" alt="Share dialog na may email field, Can edit na pagpipilian at listahan ng tao sa board" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">13</span><h3>Share a board</h3>
+        <ol><li>On the board, press <b>Share</b> at the top.</li><li>Enter the JAS email of the person you want to add and pick <b>Can edit</b> (editor) or <b>Can view</b> (viewer only).</li><li>Press <b>Add</b>. The board now shows up on their Boards page.</li></ol>
+        <p class="tip">Only the owner can add people or change their access. You can also set a different name for yourself on this board.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/14-share.jpg" alt="The Share dialog with an email field, the Can edit option and the list of people on the board" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s14">
-      <div class="txt"><span class="num">14</span><h3>Live at sundan ang view ng kasama</h3>
-        <ol><li>Kapag sabay kayong nasa board, makikita mo ang larawan niya sa taas, ang cursor niya at ang ginagalaw niya.</li><li>I-click ang larawan niya para <b>sundan ang view</b> niya. Kung saan siya tumingin, doon ka rin.</li><li>Pindutin ang <b>Stop</b> para tumigil sa pagsunod.</li></ol></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/15-follow.jpg" alt="Board ni Ben na sumusunod sa view ni Ana, may Following Ana na bar" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">14</span><h3>Work live and follow a teammate</h3>
+        <ol><li>When you are on a board together, you see their picture at the top, their pointer, and what they are moving.</li><li>Click their picture to <b>follow their view</b>. Wherever they look, your screen goes too.</li><li>Press <b>Stop</b> to stop following.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/15-follow.jpg" alt="Ben's board following Ana's view, with a Following Ana bar" loading="lazy" width="1280" height="800"></button></figure>
     </article>
   </section>
 
   <section class="part" aria-labelledby="p4">
-    <div class="part-h"><span class="eyebrow">Part 4</span><h2 id="p4">Account at iba pa</h2></div>
+    <div class="part-h"><span class="eyebrow">Part 4</span><h2 id="p4">Your account and more</h2></div>
 
     <article class="step" id="s15">
-      <div class="txt"><span class="num">15</span><h3>Ang profile mo</h3>
-        <ol><li>I-click ang profile card sa baba ng sidebar.</li><li>Palitan ang larawan, pangalan at bio mo.</li><li>Pindutin ang <b>Save profile</b>. Makikita ng mga kasama mo ito sa Share list.</li></ol></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/16-profile.jpg" alt="Profile dialog na may larawan, pangalan at bio" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">15</span><h3>Your profile</h3>
+        <ol><li>Click the profile card at the bottom of the sidebar.</li><li>Change your picture, name and bio.</li><li>Press <b>Save profile</b>. People you share boards with see it in the Share list.</li></ol></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/16-profile.jpg" alt="The profile dialog with a picture, name and bio" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step cream" id="s16">
-      <div class="txt"><span class="num">16</span><h3>Feedback at review</h3>
-        <ol><li>Pumunta sa <b>Feedback &amp; Reviews</b> sa sidebar.</li><li>Pumili: Suggestion, Feedback o Review. Sa Review, pumili ng stars.</li><li>I-type ang mensahe at pindutin ang <b>Send</b>.</li></ol>
-        <p class="tip">Ang reviews ay makikita ng lahat. Ang suggestions at feedback ay sa JAS team lang.</p></div>
-      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/17-feedback.jpg" alt="Feedback page na may Review na napili at limang stars" loading="lazy" width="1280" height="800"></button></figure>
+      <div class="txt"><span class="num">16</span><h3>Feedback and reviews</h3>
+        <ol><li>Go to <b>Feedback &amp; Reviews</b> in the sidebar.</li><li>Pick Suggestion, Feedback or Review. For a review, pick the stars.</li><li>Type your message and press <b>Send</b>.</li></ol>
+        <p class="tip">Reviews are shown to everyone. Suggestions and feedback go to the JAS team only.</p></div>
+      <figure style="margin:0"><button class="shot" data-zoom><img src="tutorial/17-feedback.jpg" alt="The Feedback page with Review selected and five stars" loading="lazy" width="1280" height="800"></button></figure>
     </article>
-
     <article class="step" id="s17">
-      <div class="txt"><span class="num">17</span><h3>Sa phone</h3>
-        <ol><li>Nasa baba ng screen ang mga tools. I-swipe pakaliwa para makita ang iba pa.</li><li>I-pinch para mag-zoom, at i-drag ang bakanteng lugar para gumalaw.</li><li>Pindutin ang <b>Fit</b> para makita ang buong board.</li></ol></div>
-      <figure style="margin:0"><button class="shot phone" data-zoom><img src="tutorial/18-phone.jpg" alt="JAS board sa phone, nasa baba ang toolbar" loading="lazy" width="390" height="844"></button></figure>
+      <div class="txt"><span class="num">17</span><h3>On a phone</h3>
+        <ol><li>The tools sit at the bottom of the screen. Swipe left to see more.</li><li>Pinch to zoom, and drag an empty spot to move around.</li><li>Press <b>Fit</b> to see the whole board.</li></ol></div>
+      <figure style="margin:0"><button class="shot phone" data-zoom><img src="tutorial/18-phone.jpg" alt="A JAS board on a phone with the toolbar at the bottom" loading="lazy" width="390" height="844"></button></figure>
     </article>
   </section>
 
   <section class="part" id="shortcuts" aria-labelledby="p5">
     <div class="part-h"><span class="eyebrow">Bonus</span><h2 id="p5">Keyboard shortcuts</h2></div>
     <ul class="keys">
-      <li><span>Select at move</span><span><kbd>V</kbd></span></li>
-      <li><span>Gumalaw sa board</span><span><kbd>H</kbd> o hold <kbd>Space</kbd></span></li>
+      <li><span>Select and move</span><span><kbd>V</kbd></span></li>
+      <li><span>Move around the board</span><span><kbd>H</kbd> or hold <kbd>Space</kbd></span></li>
       <li><span>Sticky note, text, shape</span><span><kbd>N</kbd><kbd>T</kbd><kbd>S</kbd></span></li>
       <li><span>Connector arrow</span><span><kbd>C</kbd></span></li>
       <li><span>Select many</span><span><kbd>M</kbd></span></li>
-      <li><span>Pen at eraser</span><span><kbd>P</kbd><kbd>E</kbd></span></li>
-      <li><span>Magdagdag ng larawan</span><span><kbd>I</kbd> o i-paste</span></li>
+      <li><span>Pen and eraser</span><span><kbd>P</kbd><kbd>E</kbd></span></li>
+      <li><span>Add an image</span><span><kbd>I</kbd> or paste</span></li>
       <li><span>Group / ungroup</span><span><kbd>Ctrl</kbd>+<kbd>G</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd></span></li>
       <li><span>Lock / unlock</span><span><kbd>Ctrl</kbd>+<kbd>L</kbd></span></li>
       <li><span>Undo / redo</span><span><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></span></li>
       <li><span>Duplicate</span><span><kbd>Ctrl</kbd>+<kbd>D</kbd></span></li>
-      <li><span>Burahin ang napili</span><span><kbd>Delete</kbd></span></li>
-      <li><span>Fit sa screen</span><span><kbd>Shift</kbd>+<kbd>1</kbd></span></li>
-      <li><span>Pumili ng ilan</span><span><kbd>Shift</kbd>+click</span></li>
-      <li><span>Tumigil sa pag-edit</span><span><kbd>Esc</kbd></span></li>
+      <li><span>Delete the selection</span><span><kbd>Delete</kbd></span></li>
+      <li><span>Fit to screen</span><span><kbd>Shift</kbd>+<kbd>1</kbd></span></li>
+      <li><span>Select several</span><span><kbd>Shift</kbd>+click</span></li>
+      <li><span>Stop editing</span><span><kbd>Esc</kbd></span></li>
     </ul>
   </section>
 
   <section class="end">
-    <div><h2>Handa ka na!</h2><p>Gumawa ng unang board mo at simulan ang pagpaplano.</p></div>
-    <a class="btn" href="./">Buksan ang JAS →</a>
+    <div><h2>You're ready!</h2><p>Create your first board and start planning.</p></div>
+    <a class="btn" href="./">Open JAS →</a>
   </section>
 </main>
-<footer><div class="wrap">© 2026 JAS · Ginawa ni Jancarl Angelo H. Santiago</div></footer>
+<footer><div class="wrap">© 2026 JAS</div></footer>
 
-<dialog id="zoom" aria-label="Malaking larawan"><button type="button" aria-label="Isara">×</button><img alt=""><p></p></dialog>
+<dialog id="zoom" aria-label="Larger picture"><button type="button" aria-label="Close">×</button><img alt=""><p></p></dialog>
 <script>
 const dlg=document.getElementById('zoom'), big=dlg.querySelector('img'), cap=dlg.querySelector('p');
 document.querySelectorAll('[data-zoom]').forEach(b=>b.addEventListener('click',()=>{
   const im=b.querySelector('img'); big.src=im.src; big.alt=im.alt; cap.textContent=im.alt; dlg.showModal();
 }));
 dlg.addEventListener('click',e=>{ if(e.target!==big) dlg.close(); });
+</script>
+<script>
+(function(){
+  if(!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }),{rootMargin:'0px 0px -8% 0px'});
+  const g=new Map();
+  document.querySelectorAll('.toc li,.part-h,.step,.keys li,.end').forEach(el=>{ const n=g.get(el.parentNode)||0; g.set(el.parentNode,n+1); if(!el.classList.contains('step')) el.style.setProperty('--d',Math.min(n,10)*45+'ms'); el.classList.add('reveal'); io.observe(el); });
+})();
 </script>
 </body>
 </html>
