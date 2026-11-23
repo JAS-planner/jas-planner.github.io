@@ -6,7 +6,7 @@
 <title>JAS</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cmask id=%27m%27%3E%3Crect width=%2764%27 height=%2764%27 fill=%27%23fff%27/%3E%3Cpath d=%27M40 22V37A11 11 0 0 1 29 48H25%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%276.5%27 stroke-linecap=%27round%27/%3E%3Crect x=%2731%27 y=%2710%27 width=%2718%27 height=%2716%27 rx=%273.5%27/%3E%3Ccircle cx=%2721%27 cy=%2748%27 r=%276.5%27/%3E%3C/mask%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23CCFF00%27 mask=%27url(%23m)%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
 /* Layout: split auth screen (brand panel + form card), then a top-nav app (Boards, Templates) that opens a full-screen board workspace */
 :root{
@@ -812,7 +812,6 @@ dialog[open]::backdrop{animation:jasIn .3s ease}
   --night:#040b09; --night-2:#08130f; --panel:rgba(14,30,25,.62); --panel-solid:#0c1a16;
   --hair:rgba(226,251,206,.09); --hair-2:rgba(226,251,206,.16);
   --text-2:rgba(255,253,238,.68); --text-3:rgba(255,253,238,.48);
-  --serif:"Instrument Serif", "Iowan Old Style", Georgia, serif;
   --ease:cubic-bezier(.2,.7,.2,1);
   --line:var(--hair-2); --muted:var(--text-2);
 }
@@ -826,7 +825,7 @@ body{background:
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 ::selection{background:rgba(204,255,0,.3);color:#fff}
 h1,h2,h3{letter-spacing:-.035em}
-h1 em,h2 em,.story-lead em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em;background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:var(--lime)!important;padding-right:0}
+h1 em,h2 em{font-style:normal;background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:inherit!important}
 .hero h1 em::after{display:none}
 
 /* buttons: crisp pill buttons, softer glow */
@@ -841,12 +840,12 @@ h1 em,h2 em,.story-lead em{font-family:var(--serif);font-style:italic;font-weigh
 
 /* small labels: one clean sans style instead of mono */
 .eyebrow,.tag,.pill,.uses span,.chips span{font-family:var(--body)}
-.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:700;letter-spacing:.14em;color:var(--lime)}
-.eyebrow::before{content:"";display:block;width:18px;height:1px;background:currentColor;opacity:.7}
+.eyebrow{display:block;font-size:.95rem;font-weight:600;letter-spacing:0;text-transform:none;color:var(--lime)}
+.eyebrow::before{display:none}
 .uses span,.chips span{background:rgba(255,255,255,.03);border:1px solid var(--hair-2);color:var(--text-2);font-size:.8rem;font-weight:600;padding:.32rem .8rem;border-radius:999px}
 .chips span{transition:border-color .2s,color .2s}
 .chips span:hover{border-color:rgba(204,255,0,.45);color:var(--cream)}
-.pill,.tag{font-size:.68rem;font-weight:700;letter-spacing:.08em;border-radius:999px;padding:.25rem .65rem}
+.pill,.tag{font-size:.78rem;font-weight:600;letter-spacing:0;text-transform:none;border-radius:999px;padding:.22rem .7rem}
 .pill.ok,.tag{background:rgba(204,255,0,.1);color:var(--lime);box-shadow:inset 0 0 0 1px rgba(204,255,0,.28)}
 .pill.ok::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:.45rem;vertical-align:.08em;box-shadow:0 0 8px currentColor}
 .pill.soon{background:rgba(255,255,255,.04);color:var(--text-2);box-shadow:inset 0 0 0 1px var(--hair-2)}
@@ -855,7 +854,7 @@ h1 em,h2 em,.story-lead em{font-family:var(--serif);font-style:italic;font-weigh
 header.top,.lnav{background:rgba(4,11,9,.72);-webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);border-bottom:1px solid var(--hair)}
 #side{background:rgba(6,14,12,.86);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-right:1px solid var(--hair)}
 #side .side-top{border-bottom:1px solid var(--hair)}
-.side-h{color:var(--text-3);font-size:.68rem}
+.side-h{color:var(--text-3);font-size:.8rem;font-weight:600;letter-spacing:0;text-transform:none}
 .side-nav button,.side-out{color:var(--text-2);border-radius:12px;padding:10px 12px;position:relative}
 .side-nav button:hover,.side-out:hover{background:rgba(255,255,255,.04);border-color:transparent;color:var(--cream);transform:none}
 .side-nav button[aria-current="page"]{background:linear-gradient(90deg,rgba(204,255,0,.13),rgba(204,255,0,.03));color:#fff;box-shadow:inset 0 0 0 1px rgba(204,255,0,.18);font-weight:700}
@@ -872,7 +871,8 @@ header.top,.lnav{background:rgba(4,11,9,.72);-webkit-backdrop-filter:blur(18px) 
   background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012) 40%),var(--panel)!important;
   border:1px solid var(--hair)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 24px 60px -36px rgba(0,0,0,.9);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.cap:hover,.fcard:hover,.tcard:hover,.bcard:hover{border-color:rgba(204,255,0,.32)!important;transform:translateY(-3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 30px 70px -34px rgba(204,255,0,.28)}
+.cap:hover,.fcard:hover{transform:none;border-color:var(--hair)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 24px 60px -36px rgba(0,0,0,.9)}
+.tcard:hover,.bcard:hover{border-color:rgba(204,255,0,.4)!important;transform:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px rgba(204,255,0,.15)}
 
 /* ---------- About page ---------- */
 .hero{padding-block:88px 56px;position:relative}
@@ -898,19 +898,19 @@ body.with-side .hero h1{font-size:clamp(2.5rem,4.4vw,4.4rem)}
 .story .lsec-h{margin:0}
 .story-lead{font-family:var(--display);font-size:clamp(1.4rem,2.4vw,1.9rem)!important;line-height:1.2;letter-spacing:-.03em;color:var(--cream)!important;font-weight:700;margin-top:.4rem!important}
 .about{gap:14px}
-.about .panel{border-radius:20px!important;padding:24px!important;gap:.7rem}
-.about .panel h3{font-size:.72rem!important;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3)!important}
+.about .panel{border-radius:14px!important;padding:24px!important;gap:.7rem}
+.about .panel h3{font-size:.9rem!important;font-weight:600;letter-spacing:0;color:var(--lime)!important}
 .about .panel p{color:var(--text-2)!important;font-size:1rem;line-height:1.6}
 .about .panel b,.about .panel:nth-child(2) b{color:#fff!important;font-weight:700}
-.about .panel:nth-child(2) h3{color:var(--text-3)!important}
+.about .panel:nth-child(2) h3{color:var(--lime)!important}
 .about .panel:nth-child(2) p{color:var(--text-2)!important}
 
 /* tools: four grouped cards in a bento grid */
 .caps{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;counter-reset:none}
-.cap{counter-increment:none;grid-column:span 6;border-radius:24px!important;padding:28px!important;display:flex;flex-direction:column;gap:.55rem;position:relative;overflow:hidden}
+.cap{counter-increment:none;grid-column:span 6;border-radius:18px!important;padding:28px!important;display:flex;flex-direction:column;gap:.55rem;position:relative;overflow:hidden}
 .cap::before{display:none}
 .cap-create{grid-column:span 7}.cap-organize{grid-column:span 5}.cap-flow{grid-column:span 5}.cap-team{grid-column:span 7}
-.cap::after{content:"";position:absolute;width:260px;height:260px;right:-90px;top:-110px;border-radius:50%;background:radial-gradient(closest-side,rgba(204,255,0,.12),transparent);pointer-events:none}
+.cap::after{display:none}
 .cap-ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:var(--lime);background:rgba(204,255,0,.08);box-shadow:inset 0 0 0 1px rgba(204,255,0,.24);margin-bottom:.5rem}
 .cap-ic svg{width:22px;height:22px}
 .cap h3{font-size:1.35rem;letter-spacing:-.03em;color:#fff}
@@ -967,7 +967,7 @@ footer.foot .linkbtn:hover{color:var(--lime)}
 /* ---------- Boards ---------- */
 .hello h2{font-size:clamp(2rem,3.6vw,2.8rem);letter-spacing:-.045em}
 .hello p{color:var(--text-2)!important;opacity:1}
-.bcard,.tcard{border-radius:22px!important}
+.bcard,.tcard{border-radius:16px!important}
 .bcard .thumb,.tcard .thumb{background-color:#081511;background-image:radial-gradient(rgba(226,251,206,.07) 1px,transparent 1px);border-bottom:1px solid var(--hair)!important}
 .cbody span{color:var(--text-3)!important;opacity:1}
 .bacts .btn{padding:.4rem .85rem}
@@ -979,7 +979,7 @@ footer.foot .linkbtn:hover{color:var(--lime)}
 #fb-form textarea{border-radius:16px;border-color:rgba(6,35,29,.16)}
 #fb-form .btn{background:#06231D;color:var(--lime);box-shadow:0 12px 28px -12px rgba(6,35,29,.8)}
 #fb-form .btn:hover{background:#0C342C}
-.fb-side h3{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin:6px 0 12px}
+.fb-side h3{font-size:1rem;font-weight:700;letter-spacing:-.01em;color:var(--cream);margin:6px 0 12px}
 .fb-list li{border-radius:18px!important}
 .fb-list .empty{background:transparent!important;border:1px dashed var(--hair-2)!important;box-shadow:none;color:var(--text-3)}
 .fb-summary b{background:none;color:var(--lime);-webkit-background-clip:border-box;background-clip:border-box}
@@ -1079,7 +1079,7 @@ dialog{background:linear-gradient(180deg,#0d1d18,#08130f);border:1px solid var(-
       <div class="wrap">
         <div>
           <span class="eyebrow" id="l-hello">Welcome to JAS</span>
-          <h1>Your workspace for <em>planning</em>, flow and scheduling.</h1>
+          <h1>Your workspace for planning, flow and scheduling.</h1>
           <p class="lead">JAS is a productivity workplace where you plan on one open board. Map out tasks, draw how the work flows, set schedules and keep everyone on the same page, with tools that make planning smooth and easy.</p>
           <div class="cta">
             <button class="btn" data-open-notes>Go to my boards</button>
@@ -1100,8 +1100,8 @@ dialog{background:linear-gradient(180deg,#0d1d18,#08130f);border:1px solid var(-
     <section class="lsec alt" id="about">
       <div class="wrap">
         <div class="story">
-          <div class="lsec-h"><span class="eyebrow">About JAS</span><h2>Our story</h2>
-            <p class="story-lead">Plan anything on one <em>open</em> board.</p></div>
+          <div class="lsec-h"><h2>Our story</h2>
+            <p class="story-lead">Plan anything on one open board.</p></div>
           <div class="about">
             <div class="panel">
               <h3>When it started</h3>
@@ -1119,8 +1119,7 @@ dialog{background:linear-gradient(180deg,#0d1d18,#08130f);border:1px solid var(-
     <section class="lsec" id="workspace">
       <div class="wrap">
         <div class="lsec-h">
-          <span class="eyebrow">What you can do</span>
-          <h2>Everything you need to <em>plan</em>, in one place</h2>
+          <h2>What you can do on a board</h2>
           <p><span data-local>Everything below works in this demo. Boards save in the browser you use.</span><span data-online>Boards save online, and you can invite people as editors or viewers to plan together.</span></p>
         </div>
         <div class="caps" id="caps"></div>
@@ -1130,8 +1129,7 @@ dialog{background:linear-gradient(180deg,#0d1d18,#08130f);border:1px solid var(-
     <section class="lsec alt" id="features">
       <div class="wrap">
         <div class="lsec-h">
-          <span class="eyebrow">Modes</span>
-          <h2>One workspace, <em>more ways</em> to plan</h2>
+          <h2>Pick how you want to plan</h2>
           <p>Notes Workspace and College Recon are ready to use today. Travel and Business planners are on the way.</p>
         </div>
         <div class="fgrid" id="feature-grid"></div>
@@ -1160,7 +1158,7 @@ dialog{background:linear-gradient(180deg,#0d1d18,#08130f);border:1px solid var(-
     <div class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><use href="#jas-mark"/></svg><svg class="word" viewBox="0 0 102 44" aria-hidden="true"><use href="#jas-word" width="102" height="44"/></svg><span class="sr">JAS</span></div>
     <div>
       <span class="pill-tag">✦ JAS Productivity Workspace 2026</span>
-      <h1>Plan anything on one <em>open</em> board.</h1>
+      <h1>Plan anything on one open board.</h1>
       <p>JAS is a visual planning space. Drop sticky notes, connect ideas with arrows, add photos, and keep every trip, business idea, or event plan in one place.</p>
       <ul>
         <li>Travel itineraries and budgets</li>
