@@ -7,6 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cmask id=%27m%27%3E%3Crect width=%2764%27 height=%2764%27 fill=%27%23fff%27/%3E%3Cpath d=%27M40 22V37A11 11 0 0 1 29 48H25%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%276.5%27 stroke-linecap=%27round%27/%3E%3Crect x=%2731%27 y=%2710%27 width=%2718%27 height=%2716%27 rx=%273.5%27/%3E%3Ccircle cx=%2721%27 cy=%2748%27 r=%276.5%27/%3E%3C/mask%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23CCFF00%27 mask=%27url(%23m)%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('jas_theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 <style>
 /* Layout: split auth screen (brand panel + form card), then a top-nav app (Boards, Templates) that opens a full-screen board workspace */
 :root{
@@ -805,6 +806,426 @@ dialog[open]::backdrop{animation:jasIn .3s ease}
 /* cards and sections fade up as you scroll to them (JS adds .reveal) */
 .reveal:not(.in){opacity:0}
 .reveal.in{animation:jasUp .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms) backwards}
+
+/* ===== 2026 refresh: calmer "midnight forest" base, aurora glow, editorial accents, hairline cards =====
+   Visual only. Board canvas, item styles and saved data are untouched. */
+:root{
+  --night:#040b09; --night-2:#08130f; --panel:rgba(14,30,25,.62); --panel-solid:#0c1a16;
+  --hair:rgba(226,251,206,.09); --hair-2:rgba(226,251,206,.16);
+  --text-2:rgba(255,253,238,.68); --text-3:rgba(255,253,238,.48);
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --line:var(--hair-2); --muted:var(--text-2);
+}
+html{background:var(--night)}
+body{margin:0}
+body{background:
+  radial-gradient(60rem 40rem at 12% -8%, rgba(204,255,0,.10), transparent 60%),
+  radial-gradient(50rem 36rem at 100% 8%, rgba(7,102,83,.38), transparent 62%),
+  radial-gradient(60rem 50rem at 50% 120%, rgba(7,102,83,.22), transparent 60%),
+  var(--night) fixed;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+::selection{background:rgba(204,255,0,.3);color:#fff}
+h1,h2,h3{letter-spacing:-.035em}
+h1 em,h2 em{font-style:normal;background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:inherit!important}
+.hero h1 em::after{display:none}
+
+/* buttons: crisp pill buttons, softer glow */
+.btn{border-radius:999px;font-weight:700;letter-spacing:-.005em;background:var(--lime);color:#0a1a00;box-shadow:0 0 0 1px rgba(204,255,0,.6),0 10px 30px -12px rgba(204,255,0,.55)}
+.btn:hover{background:#d8ff3d;filter:none;transform:translateY(-1px);box-shadow:0 0 0 1px rgba(204,255,0,.8),0 14px 36px -12px rgba(204,255,0,.7)}
+.btn.ghost{background:rgba(255,255,255,.03);color:var(--cream);box-shadow:inset 0 0 0 1px var(--hair-2)}
+.btn.ghost:hover{background:rgba(255,255,255,.06);color:#fff;box-shadow:inset 0 0 0 1px rgba(226,251,206,.32)}
+.btn.sm{border-radius:999px}
+#new-blank{animation:none}
+.linkbtn{text-decoration-color:rgba(204,255,0,.4);text-underline-offset:3px}
+.linkbtn:hover{text-decoration-color:currentColor}
+
+/* small labels: one clean sans style instead of mono */
+.eyebrow,.tag,.pill,.uses span,.chips span{font-family:var(--body)}
+.eyebrow{display:block;font-size:.95rem;font-weight:600;letter-spacing:0;text-transform:none;color:var(--lime)}
+.eyebrow::before{display:none}
+.uses span,.chips span{background:rgba(255,255,255,.03);border:1px solid var(--hair-2);color:var(--text-2);font-size:.8rem;font-weight:600;padding:.32rem .8rem;border-radius:999px}
+.chips span{transition:border-color .2s,color .2s}
+.chips span:hover{border-color:rgba(204,255,0,.45);color:var(--cream)}
+.pill,.tag{font-size:.78rem;font-weight:600;letter-spacing:0;text-transform:none;border-radius:999px;padding:.22rem .7rem}
+.pill.ok,.tag{background:rgba(204,255,0,.1);color:var(--lime);box-shadow:inset 0 0 0 1px rgba(204,255,0,.28)}
+.pill.ok::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:.45rem;vertical-align:.08em;box-shadow:0 0 8px currentColor}
+.pill.soon{background:rgba(255,255,255,.04);color:var(--text-2);box-shadow:inset 0 0 0 1px var(--hair-2)}
+
+/* top bars and sidebar: quieter, Linear-style active state */
+header.top,.lnav{background:rgba(4,11,9,.72);-webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);border-bottom:1px solid var(--hair)}
+#side{background:rgba(6,14,12,.86);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-right:1px solid var(--hair)}
+#side .side-top{border-bottom:1px solid var(--hair)}
+.side-h{color:var(--text-3);font-size:.8rem;font-weight:600;letter-spacing:0;text-transform:none}
+.side-nav button,.side-out{color:var(--text-2);border-radius:12px;padding:10px 12px;position:relative}
+.side-nav button:hover,.side-out:hover{background:rgba(255,255,255,.04);border-color:transparent;color:var(--cream);transform:none}
+.side-nav button[aria-current="page"]{background:linear-gradient(90deg,rgba(204,255,0,.13),rgba(204,255,0,.03));color:#fff;box-shadow:inset 0 0 0 1px rgba(204,255,0,.18);font-weight:700}
+.side-nav button[aria-current="page"]::before{content:"";position:absolute;left:-16px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--lime);box-shadow:0 0 12px var(--lime)}
+.side-nav button[aria-current="page"] svg{color:var(--lime)}
+.side-nav button em{background:rgba(255,255,255,.05);color:var(--text-3);font-weight:700}
+.side-nav button[aria-current="page"] em{background:var(--lime);color:#0a1a00}
+.side-me{background:rgba(255,255,255,.03);border:1px solid var(--hair);border-radius:16px}
+.side-me:hover{background:rgba(255,255,255,.05);border-color:rgba(204,255,0,.35);transform:none}
+.av{border:0;box-shadow:0 0 0 2px rgba(4,11,9,1),0 0 0 3px rgba(204,255,0,.5)}
+
+/* shared card surface: hairline border, soft top light, no heavy gradients */
+.cap,.fcard,.tcard,.bcard,.about .panel,.fb-list li,.notice,.resume{
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012) 40%),var(--panel)!important;
+  border:1px solid var(--hair)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 24px 60px -36px rgba(0,0,0,.9);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.cap:hover,.fcard:hover{transform:none;border-color:var(--hair)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 24px 60px -36px rgba(0,0,0,.9)}
+.tcard:hover,.bcard:hover{border-color:rgba(204,255,0,.4)!important;transform:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px rgba(204,255,0,.15)}
+
+/* ---------- About page ---------- */
+.hero{padding-block:88px 56px;position:relative}
+.hero h1{font-size:clamp(2.7rem,6.2vw,5.4rem);line-height:.96;letter-spacing:-.05em;max-width:12.5ch}
+body.with-side .hero h1{font-size:clamp(2.5rem,4.4vw,4.4rem)}
+.hero .lead{color:var(--text-2);font-size:1.12rem;line-height:1.65;max-width:44ch;margin-top:1.4rem}
+.hero .cta{margin-top:30px}
+.hero .uses{margin-top:28px}
+.hero-board{border-radius:24px;border:1px solid rgba(204,255,0,.18);background-color:#081511;background-image:radial-gradient(rgba(226,251,206,.08) 1.2px,transparent 1.2px);box-shadow:0 0 0 8px rgba(255,255,255,.02),0 50px 120px -40px rgba(204,255,0,.35),0 30px 60px -30px rgba(0,0,0,.9);transform:perspective(1600px) rotateY(-7deg) rotateX(3deg)}
+.hero-board::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(70% 50% at 70% 0%,rgba(204,255,0,.10),transparent 70%)}
+@media (prefers-reduced-motion:no-preference){ #lobby:not([hidden]) .hero-board{animation:jasPop .8s .2s var(--ease) backwards} }
+.resume{border-radius:20px;padding:18px 22px}
+.resume b{font-size:1.12rem}
+
+.lsec{padding-block:72px}
+.lsec-h{gap:.7rem;margin-bottom:36px;max-width:60ch}
+.lsec-h h2{max-width:20ch}
+.lsec-h h2{font-size:clamp(2rem,4vw,3.2rem);line-height:1.02;letter-spacing:-.045em}
+.lsec-h p{color:var(--text-2);font-size:1.02rem;max-width:58ch}
+
+/* story: statement left, facts right */
+.story{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:end}
+.story .lsec-h{margin:0}
+.story-lead{font-family:var(--display);font-size:clamp(1.4rem,2.4vw,1.9rem)!important;line-height:1.2;letter-spacing:-.03em;color:var(--cream)!important;font-weight:700;margin-top:.4rem!important}
+.about{gap:14px}
+.about .panel{border-radius:14px!important;padding:24px!important;gap:.7rem}
+.about .panel h3{font-size:.9rem!important;font-weight:600;letter-spacing:0;color:var(--lime)!important}
+.about .panel p{color:var(--text-2)!important;font-size:1rem;line-height:1.6}
+.about .panel b,.about .panel:nth-child(2) b{color:#fff!important;font-weight:700}
+.about .panel:nth-child(2) h3{color:var(--lime)!important}
+.about .panel:nth-child(2) p{color:var(--text-2)!important}
+
+/* tools: four grouped cards in a bento grid */
+.caps{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;counter-reset:none}
+.cap{counter-increment:none;grid-column:span 6;border-radius:18px!important;padding:28px!important;display:flex;flex-direction:column;gap:.55rem;position:relative;overflow:hidden}
+.cap::before{display:none}
+.cap-create{grid-column:span 7}.cap-organize{grid-column:span 5}.cap-flow{grid-column:span 5}.cap-team{grid-column:span 7}
+.cap::after{display:none}
+.cap-ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:var(--lime);background:rgba(204,255,0,.08);box-shadow:inset 0 0 0 1px rgba(204,255,0,.24);margin-bottom:.5rem}
+.cap-ic svg{width:22px;height:22px}
+.cap h3{font-size:1.35rem;letter-spacing:-.03em;color:#fff}
+.cap p{margin:0;color:var(--text-2);font-size:.95rem;max-width:42ch}
+.cap ul{list-style:none;margin:.8rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.cap li{font-size:.84rem;font-weight:600;color:var(--cream);background:rgba(255,255,255,.04);border:1px solid var(--hair);border-radius:999px;padding:.35rem .8rem}
+
+/* modes: lead card full width, three below */
+.fgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.fcard{border-radius:24px!important}
+.fcard.lead{grid-column:1/-1;grid-template-columns:1.25fr 1fr}
+.fcard .thumb{background-color:#081511;background-image:radial-gradient(rgba(226,251,206,.07) 1px,transparent 1px);border-color:var(--hair)!important}
+.fcard.lead .thumb{min-height:300px}
+.fbody{padding:24px;gap:.7rem}
+.fcard.lead .fbody{padding:36px;justify-content:center}
+.fcard.lead h3{font-size:2rem;letter-spacing:-.04em}
+.fbody h3{font-size:1.3rem}
+.fbody p{color:var(--text-2)}
+.factions{padding-top:14px}
+.factions .btn{padding:.6rem 1.05rem;font-size:.9rem}
+
+.pager{border-top:1px solid var(--hair);margin-top:24px;padding-top:28px}
+footer.foot{border-top:1px solid var(--hair);color:var(--text-3)}
+footer.foot .linkbtn{color:var(--text-2);text-decoration:none;font-weight:600}
+footer.foot .linkbtn:hover{color:var(--lime)}
+
+/* ---------- Sign in ---------- */
+#auth .brand{background:
+  radial-gradient(40rem 26rem at 0% 100%, rgba(204,255,0,.16), transparent 60%),
+  radial-gradient(34rem 24rem at 100% 0%, rgba(7,102,83,.55), transparent 65%),
+  linear-gradient(160deg,#0b1d18,#050d0b);border:1px solid var(--hair-2);border-radius:28px}
+#auth .brand::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-image:linear-gradient(rgba(226,251,206,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(226,251,206,.045) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(80% 70% at 30% 40%,#000,transparent);mask-image:radial-gradient(80% 70% at 30% 40%,#000,transparent)}
+#auth .brand::after{display:none}
+#auth .brand canvas{opacity:.22}
+#auth .brand h1{font-size:clamp(2.6rem,5.2vw,4.6rem);line-height:.98;letter-spacing:-.05em}
+#auth .brand p{color:var(--text-2)!important;opacity:1;font-size:1.05rem;line-height:1.65}
+#auth .pill-tag{background:rgba(255,255,255,.04);border-color:var(--hair-2);color:var(--cream)}
+#auth .brand li{background:rgba(255,255,255,.035);border-color:var(--hair);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#auth .card{background:linear-gradient(180deg,#FFFEF6 0%,#F1FBE6 100%);border:1px solid rgba(255,255,255,.6);border-radius:28px;box-shadow:0 0 0 8px rgba(255,255,255,.03),0 40px 100px -30px rgba(0,0,0,.9),0 30px 80px -40px rgba(204,255,0,.35)}
+#auth .card h2{letter-spacing:-.04em}
+#auth .card .btn[type=submit]{background:#06231D;color:var(--lime);box-shadow:0 12px 28px -12px rgba(6,35,29,.8);padding:.9rem}
+#auth .card .btn[type=submit]:hover{background:#0C342C}
+#auth .card .btn[type=submit]:disabled{background:rgba(6,35,29,.35);color:rgba(255,255,255,.8)}
+#auth .tabs{background:rgba(6,35,29,.07);border-radius:999px}
+#auth .tabs button{border-radius:999px}
+#auth .card input[type=text],#auth .card input[type=email],#auth .card input[type=password],#auth .card select{border-radius:14px;border-color:rgba(6,35,29,.16)}
+#auth .card .demo{border-radius:14px;border:1px dashed rgba(6,35,29,.2)}
+
+/* cookie banner: compact card instead of a wide bar */
+#cookie .inner{max-width:720px;background:rgba(8,19,15,.92)!important;border:1px solid var(--hair-2)!important;border-radius:20px;padding:14px 16px;box-shadow:0 30px 80px -30px rgba(0,0,0,.95)}
+#cookie p{font-size:.85rem;color:var(--text-2)}
+#cookie .btn{padding:.55rem 1rem;font-size:.88rem}
+
+/* ---------- Boards ---------- */
+.hello h2{font-size:clamp(2rem,3.6vw,2.8rem);letter-spacing:-.045em}
+.hello p{color:var(--text-2)!important;opacity:1}
+.bcard,.tcard{border-radius:16px!important}
+.bcard .thumb,.tcard .thumb{background-color:#081511;background-image:radial-gradient(rgba(226,251,206,.07) 1px,transparent 1px);border-bottom:1px solid var(--hair)!important}
+.cbody span{color:var(--text-3)!important;opacity:1}
+.bacts .btn{padding:.4rem .85rem}
+.notice{border-radius:16px;color:var(--text-2)!important}
+
+/* ---------- Feedback ---------- */
+#fb-form.fb-card{background:linear-gradient(180deg,#FFFEF6 0%,#F1FBE6 100%);border:1px solid rgba(255,255,255,.6);border-radius:28px;box-shadow:0 40px 100px -40px rgba(0,0,0,.9),0 30px 80px -50px rgba(204,255,0,.4)}
+#fb-form .fb-kinds span{border-radius:999px}
+#fb-form textarea{border-radius:16px;border-color:rgba(6,35,29,.16)}
+#fb-form .btn{background:#06231D;color:var(--lime);box-shadow:0 12px 28px -12px rgba(6,35,29,.8)}
+#fb-form .btn:hover{background:#0C342C}
+.fb-side h3{font-size:1rem;font-weight:700;letter-spacing:-.01em;color:var(--cream);margin:6px 0 12px}
+.fb-list li{border-radius:18px!important}
+.fb-list .empty{background:transparent!important;border:1px dashed var(--hair-2)!important;box-shadow:none;color:var(--text-3)}
+.fb-summary b{background:none;color:var(--lime);-webkit-background-clip:border-box;background-clip:border-box}
+
+dialog{background:linear-gradient(180deg,#0d1d18,#08130f);border:1px solid var(--hair-2);border-radius:24px}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1100px){
+  .cap-create,.cap-organize,.cap-flow,.cap-team{grid-column:span 6}
+  .fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fgrid .fcard:last-child:nth-child(even){grid-column:1/-1}
+}
+@media (max-width:860px){
+  .story{grid-template-columns:1fr;gap:24px}
+  .hero{padding-block:44px 32px}
+  .hero-board{transform:none}
+  .lsec{padding-block:48px}
+  .lsec-h{margin-bottom:24px}
+  .fcard.lead .fbody{padding:24px}
+  .fcard.lead h3{font-size:1.6rem}
+}
+@media (max-width:640px){
+  .caps{grid-template-columns:1fr}
+  .cap-create,.cap-organize,.cap-flow,.cap-team{grid-column:auto}
+  .cap{padding:22px!important}
+  .fgrid{grid-template-columns:1fr}
+  .fgrid .fcard:last-child:nth-child(even){grid-column:auto}
+  .hero h1,body.with-side .hero h1{font-size:clamp(2.5rem,11vw,3.2rem)}
+  #cookie .inner{border-radius:18px;gap:10px;padding:12px 14px}
+  #cookie p{font-size:.8rem}
+  #cookie .acts{width:100%;flex-wrap:nowrap}
+  #cookie .btn{flex:1;padding:.5rem .6rem;font-size:.8rem;white-space:nowrap}
+}
+@media (prefers-reduced-motion:reduce){ .cap,.fcard,.bcard,.tcard{transition:none} .cap:hover,.fcard:hover,.bcard:hover,.tcard:hover{transform:none} }
+
+/* ===== New About sections (both themes) ===== */
+#lobby main{padding-top:0}
+.uc{display:grid;gap:20px}
+.uc-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.uc-tabs button{border:1px solid var(--hair-2);background:transparent;color:var(--text-2);font-weight:700;font-size:.95rem;padding:.6rem 1.15rem;border-radius:999px;transition:background .15s,color .15s,border-color .15s}
+.uc-tabs button:hover{color:var(--fg);border-color:var(--text-3)}
+.uc-tabs button[aria-selected="true"]{background:var(--fg);color:var(--night);border-color:var(--fg)}
+.uc-panel{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:40px;align-items:center;padding:36px;border-radius:28px;background:var(--panel);border:1px solid var(--hair)}
+.uc-text h3{font-size:clamp(1.6rem,2.6vw,2.2rem);letter-spacing:-.04em;line-height:1.05}
+.uc-text p{color:var(--text-2);font-size:1.05rem;margin:.8rem 0 0;max-width:40ch}
+.uc-text ul{list-style:none;padding:0;margin:1.2rem 0 1.6rem;display:grid;gap:.6rem}
+.uc-text li{display:flex;gap:.65rem;align-items:baseline;font-weight:600}
+.uc-text li::before{content:"";flex:none;width:8px;height:8px;border-radius:2px;background:var(--lime);transform:translateY(-1px)}
+.uc-shot{border-radius:20px;overflow:hidden;background:#fff;background-image:radial-gradient(#d3dfd6 1.1px,transparent 1.1px);background-size:16px 16px;border:1px solid var(--hair-2);aspect-ratio:16/10;display:grid;place-items:center;box-shadow:0 30px 60px -36px rgba(0,0,0,.6)}
+.uc-board{width:100%;height:100%;padding:18px}
+.uc-board svg{width:100%;height:100%}
+
+.stats-sec{padding-block:24px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0;border-top:1px solid var(--hair-2);border-bottom:1px solid var(--hair-2)}
+.stats>div{padding:28px 20px 26px;display:flex;flex-direction:column-reverse;gap:.35rem}
+.stats>div+div{border-left:1px solid var(--hair-2)}
+.stats dt{color:var(--text-2);font-weight:600;font-size:.95rem}
+.stats dd{margin:0;font-size:clamp(2.2rem,4vw,3.2rem);font-weight:800;letter-spacing:-.05em;line-height:1}
+.stats dd.soon{color:var(--text-3)}
+.stats-note{color:var(--text-3);font-size:.85rem;margin:.8rem 0 0}
+
+.help{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.help-card{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:.3rem;padding:20px;border-radius:16px;border:1px solid var(--hair-2);background:var(--panel);transition:border-color .15s,background .15s}
+.help-card b{font-size:1.05rem;color:var(--fg)}
+.help-card span{color:var(--text-2);font-size:.9rem}
+.help-card:hover{border-color:var(--lime)}
+.help-card:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+
+/* theme switch buttons */
+.tb-ic{display:grid;place-items:center}
+.tb-ic svg{width:19px;height:19px}
+:root[data-theme="dark"] .ic-moon,:root:not([data-theme="dark"]) .ic-sun{display:none}
+.theme-btn .ic-sun,.theme-btn .ic-moon{opacity:.85}
+.theme-ibtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--hair-2);background:transparent;color:var(--fg);display:grid;place-items:center;cursor:pointer}
+.auth-top{display:flex;align-items:center;justify-content:space-between}
+body.in-board .theme-btn{display:none}
+@media (min-width:901px){ body.with-side .lnav .theme-ibtn{display:none} }
+
+@media (max-width:860px){
+  .uc-panel{grid-template-columns:1fr;padding:22px;gap:24px}
+  .uc-shot{order:-1}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats>div:nth-child(3){border-left:0}
+  .stats>div:nth-child(n+3){border-top:1px solid var(--hair-2)}
+  .help{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:520px){ .help{grid-template-columns:1fr} .uc-tabs{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding-inline:16px;scrollbar-width:none} .uc-tabs button{flex:none} }
+
+/* ===== Light theme: every page except the board workspace (scoped with body:not(.in-board)) ===== */
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="light"]:has(body.in-board){color-scheme:dark}
+:root[data-theme="light"] body:not(.in-board){
+  --night:#ffffff; --panel:#f5f8f1; --fg:#0e1f1a; --cream:#0e1f1a; --muted:#4b5c54;
+  --text-2:#4b5c54; --text-3:#7d8b84; --hair:#e6ece3; --hair-2:#dbe3d7; --line:#dbe3d7;
+  --ink-accent:#076653;
+  background:#ffffff;color:var(--fg)}
+:root[data-theme="light"]:not(:has(body.in-board)){background:#fff}
+:root[data-theme="light"] body:not(.in-board)::before{background:#fff}
+:root[data-theme="light"] body:not(.in-board) ::selection{background:#E3EF26;color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) :focus-visible{outline-color:#076653}
+:root[data-theme="light"] body:not(.in-board) a,:root[data-theme="light"] body:not(.in-board) .linkbtn{color:#076653}
+:root[data-theme="light"] body:not(.in-board) .eyebrow{color:#076653}
+
+/* buttons: lime fill keeps the brand; text stays dark for contrast */
+:root[data-theme="light"] body:not(.in-board) .btn{background:var(--lime);color:#0e1f1a;box-shadow:inset 0 0 0 1px rgba(14,31,26,.12)}
+:root[data-theme="light"] body:not(.in-board) .btn:hover{background:#d8ff3d;box-shadow:inset 0 0 0 1px rgba(14,31,26,.2),0 8px 20px -10px rgba(7,102,83,.5)}
+:root[data-theme="light"] body:not(.in-board) .btn.ghost{background:#fff;color:#0e1f1a;box-shadow:inset 0 0 0 1px #cfd9cb}
+:root[data-theme="light"] body:not(.in-board) .btn.ghost:hover{background:#f5f8f1;box-shadow:inset 0 0 0 1px #0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .btn:disabled{background:#eef2ea;color:#7d8b84;box-shadow:none}
+
+/* bars and sidebar */
+:root[data-theme="light"] body:not(.in-board) .lnav{background:rgba(255,255,255,.88);border-bottom:1px solid var(--hair)}
+:root[data-theme="light"] body:not(.in-board) #side{background:#fbfcf9;border-right:1px solid var(--hair)}
+:root[data-theme="light"] body:not(.in-board) .side-nav button,:root[data-theme="light"] body:not(.in-board) .side-out{color:#33443c}
+:root[data-theme="light"] body:not(.in-board) .side-nav button:hover,:root[data-theme="light"] body:not(.in-board) .side-out:hover{background:#eef3ea;color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .side-nav button[aria-current="page"]{background:#eef6d6;color:#0e1f1a;box-shadow:inset 0 0 0 1px #d7e9a6}
+:root[data-theme="light"] body:not(.in-board) .side-nav button[aria-current="page"]::before{background:#076653;box-shadow:none}
+:root[data-theme="light"] body:not(.in-board) .side-nav button[aria-current="page"] svg{color:#076653}
+:root[data-theme="light"] body:not(.in-board) .side-nav button em{background:#eef2ea;color:#4b5c54}
+:root[data-theme="light"] body:not(.in-board) .side-nav button[aria-current="page"] em{background:#0e1f1a;color:var(--lime)}
+:root[data-theme="light"] body:not(.in-board) .side-me{background:#fff;border-color:var(--hair-2)}
+:root[data-theme="light"] body:not(.in-board) .side-me small{color:#076653}
+:root[data-theme="light"] body:not(.in-board) .side-me .chev{color:#076653}
+:root[data-theme="light"] body:not(.in-board) .av{box-shadow:0 0 0 2px #fff,0 0 0 3px #cfd9cb}
+:root[data-theme="light"] body:not(.in-board) .side-toggle{background:#fff!important;color:#0e1f1a!important;border-color:var(--hair-2)!important}
+:root[data-theme="light"] body:not(.in-board) .avatar{background:#eef6d6;color:#076653;box-shadow:inset 0 0 0 1px #d7e9a6}
+
+/* surfaces: flat, light, no glass */
+:root[data-theme="light"] body:not(.in-board) .cap,:root[data-theme="light"] body:not(.in-board) .fcard,:root[data-theme="light"] body:not(.in-board) .about .panel,:root[data-theme="light"] body:not(.in-board) .resume,:root[data-theme="light"] body:not(.in-board) .notice{
+  background:#fff!important;border:1px solid var(--hair-2)!important;box-shadow:0 1px 0 rgba(14,31,26,.03);-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--fg)}
+:root[data-theme="light"] body:not(.in-board) .uses span,:root[data-theme="light"] body:not(.in-board) .chips span{background:#fff;color:#33443c;border-color:var(--hair-2)}
+
+/* hero: the board preview is shown as the real white canvas */
+:root[data-theme="light"] body:not(.in-board) .hero{background:linear-gradient(180deg,#f3f9e4 0%,#ffffff 100%)}
+:root[data-theme="light"] body:not(.in-board) .hero-board{background-color:#fff;background-image:radial-gradient(#d3dfd6 1.2px,transparent 1.2px);border:1px solid #dbe3d7;box-shadow:0 40px 80px -40px rgba(7,102,83,.45),0 2px 0 rgba(14,31,26,.04);transform:none}
+:root[data-theme="light"] body:not(.in-board) .hero-board::after{display:none}
+:root[data-theme="light"] body:not(.in-board) .hero-board .hb-top{color:#7d8b84}
+:root[data-theme="light"] body:not(.in-board) .hero-board .hb-top i{background:#dbe3d7}
+:root[data-theme="light"] body:not(.in-board) .hero-board .hb-tools{background:#fff;border-color:#dbe3d7;box-shadow:0 4px 12px -6px rgba(14,31,26,.25)}
+:root[data-theme="light"] body:not(.in-board) .hero-board .hb-tools span{background:#eef2ea}
+:root[data-theme="light"] body:not(.in-board) .hero-board .hb-tools span:first-child{background:var(--lime)}
+:root[data-theme="light"] body:not(.in-board) .resume{background:#0e1f1a!important;border-color:#0e1f1a!important;color:#fff}
+:root[data-theme="light"] body:not(.in-board) .resume b{color:#fff}
+:root[data-theme="light"] body:not(.in-board) .resume span{color:#b9cbc1}
+
+/* use cases: a soft green band */
+:root[data-theme="light"] body:not(.in-board) .uc-panel{background:#eef6d6;border-color:#dde9bd}
+:root[data-theme="light"] body:not(.in-board) .uc-tabs button[aria-selected="true"]{background:#0e1f1a;color:#fff;border-color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .uc-text li::before{background:#076653}
+:root[data-theme="light"] body:not(.in-board) .uc-shot{box-shadow:0 30px 60px -36px rgba(7,102,83,.5)}
+
+/* tools: each group is a big sticky note in a real board color */
+:root[data-theme="light"] body:not(.in-board) .cap{border:0!important;box-shadow:0 18px 30px -22px rgba(14,31,26,.35)}
+:root[data-theme="light"] body:not(.in-board) .cap-create{background:#fff3a3!important}
+:root[data-theme="light"] body:not(.in-board) .cap-organize{background:#c9f0d3!important}
+:root[data-theme="light"] body:not(.in-board) .cap-flow{background:#cfe3ff!important}
+:root[data-theme="light"] body:not(.in-board) .cap-team{background:#ffd9b0!important}
+:root[data-theme="light"] body:not(.in-board) .cap h3{color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .cap p{color:#33443c}
+:root[data-theme="light"] body:not(.in-board) .cap-ic{background:rgba(255,255,255,.6);color:#0e1f1a;box-shadow:none}
+:root[data-theme="light"] body:not(.in-board) .cap li{background:rgba(255,255,255,.65);border-color:transparent;color:#0e1f1a}
+
+/* story, modes, help */
+:root[data-theme="light"] body:not(.in-board) .story-lead{color:#0e1f1a!important}
+:root[data-theme="light"] body:not(.in-board) .about .panel h3{color:#076653!important}
+:root[data-theme="light"] body:not(.in-board) .about .panel p{color:#4b5c54!important}
+:root[data-theme="light"] body:not(.in-board) .about .panel b{color:#0e1f1a!important}
+:root[data-theme="light"] body:not(.in-board) .fcard .thumb{background-color:#fff;background-image:radial-gradient(#d3dfd6 1px,transparent 1px);border-color:var(--hair-2)!important}
+:root[data-theme="light"] body:not(.in-board) .fbody h3{color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .pill.ok{background:#eef6d6;color:#076653;box-shadow:inset 0 0 0 1px #d7e9a6}
+:root[data-theme="light"] body:not(.in-board) .pill.soon{background:#f2f4f0;color:#4b5c54;box-shadow:none}
+:root[data-theme="light"] body:not(.in-board) .help-card{background:#fff}
+:root[data-theme="light"] body:not(.in-board) .help-card:hover{border-color:#076653;background:#f8fbf4}
+:root[data-theme="light"] body:not(.in-board) .stats dd{color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .stats dd.soon{color:#a6b2ab}
+:root[data-theme="light"] body:not(.in-board) footer.foot .linkbtn{color:#4b5c54}
+:root[data-theme="light"] body:not(.in-board) footer.foot .linkbtn:hover{color:#076653}
+
+/* sign-in: mint showcase panel, white form card */
+:root[data-theme="light"] #auth .brand{background:#eef6d6;border:1px solid #dde9bd;box-shadow:none;color:#0e1f1a}
+:root[data-theme="light"] #auth .brand::before{background-image:radial-gradient(#c5d8a0 1.2px,transparent 1.2px);background-size:20px 20px;-webkit-mask-image:linear-gradient(180deg,#000,transparent 80%);mask-image:linear-gradient(180deg,#000,transparent 80%)}
+:root[data-theme="light"] #auth .brand canvas{opacity:.18}
+:root[data-theme="light"] #auth .brand h1{color:#0e1f1a}
+:root[data-theme="light"] #auth .brand p{color:#33443c!important}
+:root[data-theme="light"] #auth .brand small{color:#4b5c54}
+:root[data-theme="light"] #auth .logo{color:#0e1f1a}
+:root[data-theme="light"] #auth .pill-tag{background:#fff;border-color:#d7e9a6;color:#076653}
+:root[data-theme="light"] #auth .brand li{background:#fff;border-color:#dde9bd;color:#0e1f1a}
+:root[data-theme="light"] #auth .brand li::before{color:#076653}
+:root[data-theme="light"] #auth .card{background:#fff;border:1px solid #dbe3d7;box-shadow:0 30px 70px -40px rgba(14,31,26,.45)}
+:root[data-theme="light"] #auth .theme-ibtn{background:#fff;border-color:#d7e9a6;color:#0e1f1a}
+:root[data-theme="light"] #cookie .inner{background:#fff!important;border-color:#dbe3d7!important;box-shadow:0 20px 50px -24px rgba(14,31,26,.4)}
+:root[data-theme="light"] #cookie p{color:#4b5c54}
+:root[data-theme="light"] #cookie p b{color:#0e1f1a}
+:root[data-theme="light"] #cookie .btn{background:var(--lime);color:#0e1f1a;box-shadow:none}
+:root[data-theme="light"] #cookie .btn.ghost{background:#fff;color:#0e1f1a;box-shadow:inset 0 0 0 1px #cfd9cb}
+:root[data-theme="light"] #cookie a,:root[data-theme="light"] #cookie .linkbtn{color:#076653}
+
+/* ===== Light theme: Boards, Feedback, College Recon and dialogs (the board workspace keeps its dark frame) ===== */
+:root[data-theme="light"] body:not(.in-board){--glass:#ffffff;--surface:#ffffff;--surface-2:#f2f6ee;--bg:#ffffff}
+:root[data-theme="light"] body.in-app:not(.in-board) #app{background:linear-gradient(180deg,#f6faee 0,#ffffff 320px)}
+:root[data-theme="light"] body:not(.in-board) header.top{background:rgba(255,255,255,.9);border-bottom:1px solid var(--hair)}
+:root[data-theme="light"] body:not(.in-board) nav.main button{color:#4b5c54}
+:root[data-theme="light"] body:not(.in-board) nav.main button[aria-current="page"]{background:#eef6d6;color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .hello p{color:#4b5c54!important}
+:root[data-theme="light"] body:not(.in-board) .sec-h span,:root[data-theme="light"] body:not(.in-board) .muted{color:#4b5c54}
+/* board cards: white card, real white canvas thumbnail */
+:root[data-theme="light"] body:not(.in-board) .bcard,:root[data-theme="light"] body:not(.in-board) .tcard{background:#fff!important;border:1px solid var(--hair-2)!important;box-shadow:0 1px 0 rgba(14,31,26,.03);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-theme="light"] body:not(.in-board) .bcard:hover,:root[data-theme="light"] body:not(.in-board) .tcard:hover{border-color:#076653!important;box-shadow:0 18px 36px -24px rgba(7,102,83,.45)}
+:root[data-theme="light"] body:not(.in-board) .bcard .thumb,:root[data-theme="light"] body:not(.in-board) .tcard .thumb{background-color:#fff;background-image:radial-gradient(#d3dfd6 1px,transparent 1px);border-bottom:1px solid var(--hair)!important}
+:root[data-theme="light"] body:not(.in-board) .cbody strong{color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .cbody span{color:#7d8b84!important}
+:root[data-theme="light"] body:not(.in-board) .notice{background:#f5f8f1!important;border:1px solid var(--hair)!important;color:#4b5c54!important}
+:root[data-theme="light"] body:not(.in-board) .notice b{color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .pager{border-top-color:var(--hair)}
+:root[data-theme="light"] body:not(.in-board) .tag{background:#eef6d6;color:#076653;box-shadow:inset 0 0 0 1px #d7e9a6}
+:root[data-theme="light"] body:not(.in-board) .empty{color:#4b5c54}
+/* feedback: form is a soft green panel, reviews are white cards */
+:root[data-theme="light"] body:not(.in-board) #fb-form.fb-card{background:#eef6d6;border:1px solid #dde9bd;box-shadow:none}
+:root[data-theme="light"] body:not(.in-board) #fb-form textarea{border-color:#cfe0b0}
+:root[data-theme="light"] body:not(.in-board) #fb-form .btn{background:#0e1f1a;color:var(--lime)}
+:root[data-theme="light"] body:not(.in-board) #fb-form .btn:disabled{background:#c9d6c2;color:#fff}
+:root[data-theme="light"] body:not(.in-board) .fb-side h3{color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .fb-list li{background:#fff!important;border:1px solid var(--hair-2)!important;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-theme="light"] body:not(.in-board) .fb-list li p{color:#33443c}
+:root[data-theme="light"] body:not(.in-board) .fb-list li .meta{color:#7d8b84}
+:root[data-theme="light"] body:not(.in-board) .fb-list li .st,:root[data-theme="light"] body:not(.in-board) .fb-summary b{color:#076653}
+:root[data-theme="light"] body:not(.in-board) .fb-list .empty{background:transparent!important;border:1px dashed #cfd9cb!important;color:#7d8b84}
+/* college recon */
+:root[data-theme="light"] body:not(.in-board) .rc-intro,:root[data-theme="light"] body:not(.in-board) .rc-item,:root[data-theme="light"] body:not(.in-board) .rc-class{background:#fff;border-color:var(--hair-2)}
+:root[data-theme="light"] body:not(.in-board) .rc-t{color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .rc-turned{color:#076653}
+:root[data-theme="light"] body:not(.in-board) .rc-group.overdue .rc-due{color:#b3261e}
+:root[data-theme="light"] body:not(.in-board) .rc-group.today .rc-due{color:#a15c00}
+/* form fields outside the cream cards */
+:root[data-theme="light"] body:not(.in-board) input[type=text],:root[data-theme="light"] body:not(.in-board) input[type=email],:root[data-theme="light"] body:not(.in-board) input[type=password],:root[data-theme="light"] body:not(.in-board) input[type=search],:root[data-theme="light"] body:not(.in-board) textarea,:root[data-theme="light"] body:not(.in-board) select{background:#fff;color:#0e1f1a;border-color:#cfd9cb;color-scheme:light}
+:root[data-theme="light"] body:not(.in-board) select option{background:#fff;color:#0e1f1a}
+:root[data-theme="light"] body:not(.in-board) .err{background:#ffe3e0;color:#a3211a}
+/* dialogs, toast */
+:root[data-theme="light"] body:not(.in-board) dialog{background:#fff;color:#0e1f1a;border:1px solid var(--hair-2);box-shadow:0 30px 80px -30px rgba(14,31,26,.5)}
+:root[data-theme="light"] body:not(.in-board) dialog::backdrop{background:rgba(14,31,26,.35)}
+:root[data-theme="light"] body:not(.in-board) .dlg-h,:root[data-theme="light"] body:not(.in-board) .dlg-f{border-color:var(--hair)}
+:root[data-theme="light"] body:not(.in-board) .x-btn{color:#0e1f1a;border-color:#cfd9cb}
+:root[data-theme="light"] body:not(.in-board) dialog .pref{background:#f5f8f1!important;border-color:var(--hair)!important}
+:root[data-theme="light"] body:not(.in-board) .toast{background:#0e1f1a;color:var(--lime);border-color:#0e1f1a}
 </style>
 </head>
 <body>
@@ -840,6 +1261,7 @@ dialog[open]::backdrop{animation:jasIn .3s ease}
   </nav>
   <div class="side-foot">
     <button class="side-me" id="side-profile" title="Edit your profile"><span class="av" id="side-av">J</span><span class="who"><b id="side-name">Juan</b><small>Edit profile</small></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button class="side-out theme-btn" data-theme-toggle><span class="tb-ic"><svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></span><span class="tb-txt">Dark mode</span></button>
     <button class="side-out" id="side-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4a1 1 0 011 1v14a1 1 0 01-1 1h-4M10 16l-4-4 4-4M6 12h10"/></svg><span>Log out</span></button>
   </div>
 </aside>
@@ -860,6 +1282,7 @@ dialog[open]::backdrop{animation:jasIn .3s ease}
         <div class="avatar" id="l-initial">J</div>
         <span class="uname" id="l-name">Juan</span>
         <button class="btn ghost" id="l-ai" data-online style="padding:.45rem .8rem" title="Connect an AI assistant to your boards">AI connector</button>
+        <button class="ibtn theme-ibtn" data-theme-toggle aria-label="Switch to dark mode"><span class="tb-ic"><svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></span></button>
         <button class="btn ghost" id="l-logout" style="padding:.45rem .8rem">Log out</button>
       </div>
     </div>
@@ -870,7 +1293,7 @@ dialog[open]::backdrop{animation:jasIn .3s ease}
       <div class="wrap">
         <div>
           <span class="eyebrow" id="l-hello">Welcome to JAS</span>
-          <h1>Your workspace for <em>planning</em>, flow and scheduling.</h1>
+          <h1>Your workspace for planning, flow and scheduling.</h1>
           <p class="lead">JAS is a productivity workplace where you plan on one open board. Map out tasks, draw how the work flows, set schedules and keep everyone on the same page, with tools that make planning smooth and easy.</p>
           <div class="cta">
             <button class="btn" data-open-notes>Go to my boards</button>
@@ -888,17 +1311,55 @@ dialog[open]::backdrop{animation:jasIn .3s ease}
 
     <div class="wrap" id="resume-wrap" hidden style="margin-top:8px"><div class="resume" id="resume"></div></div>
 
+    <section class="lsec" id="usecases">
+      <div class="wrap">
+        <div class="lsec-h"><h2>Start with what you're planning</h2><p>Each one opens as a ready-made board you can change any way you like.</p></div>
+        <div class="uc">
+          <div class="uc-tabs" role="tablist" aria-label="Use cases">
+            <button role="tab" aria-selected="true" data-uc="travel">Trips</button>
+            <button role="tab" aria-selected="false" data-uc="business">Business</button>
+            <button role="tab" aria-selected="false" data-uc="event">Events</button>
+            <button role="tab" aria-selected="false" data-uc="school">School</button>
+          </div>
+          <div class="uc-panel" role="tabpanel">
+            <div class="uc-text">
+              <h3 id="uc-title"></h3>
+              <p id="uc-desc"></p>
+              <ul id="uc-points"></ul>
+              <button class="btn" id="uc-go">Go to my boards</button>
+            </div>
+            <div class="uc-shot"><div class="uc-board" id="uc-board"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lsec stats-sec" id="stats">
+      <div class="wrap">
+        <dl class="stats">
+          <div><dt>Ready-made templates</dt><dd id="st-templates">3</dd></div>
+          <div><dt>Boards made</dt><dd class="soon">Soon</dd></div>
+          <div><dt>People planning</dt><dd class="soon">Soon</dd></div>
+          <div><dt>Average rating</dt><dd class="soon">Soon</dd></div>
+        </dl>
+        <p class="stats-note">We'll share real numbers here once JAS has them.</p>
+      </div>
+    </section>
+
     <section class="lsec alt" id="about">
       <div class="wrap">
-        <div class="lsec-h"><span class="eyebrow">About JAS</span><h2>Our story</h2></div>
-        <div class="about">
-          <div class="panel">
-            <h3>When it started</h3>
-            <p>JAS was established in <b style="color:var(--fg)" id="about-est">November 2026</b> as a simple place to plan without juggling notes apps, spreadsheets and chat threads.</p>
-          </div>
-          <div class="panel">
-            <h3>Who made it</h3>
-            <p>JAS was created by <b style="color:var(--fg)">Jancarl Angelo H. Santiago</b>.</p>
+        <div class="story">
+          <div class="lsec-h"><h2>Our story</h2>
+            <p class="story-lead">Plan anything on one open board.</p></div>
+          <div class="about">
+            <div class="panel">
+              <h3>When it started</h3>
+              <p>JAS was established in <b id="about-est">November 2026</b> as a simple place to plan without juggling notes apps, spreadsheets and chat threads.</p>
+            </div>
+            <div class="panel">
+              <h3>Who made it</h3>
+              <p>JAS was created by <b>Jancarl Angelo H. Santiago</b>.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -907,8 +1368,7 @@ dialog[open]::backdrop{animation:jasIn .3s ease}
     <section class="lsec" id="workspace">
       <div class="wrap">
         <div class="lsec-h">
-          <span class="eyebrow">What you can do</span>
-          <h2>Tools for smooth planning</h2>
+          <h2>What you can do on a board</h2>
           <p><span data-local>Everything below works in this demo. Boards save in the browser you use.</span><span data-online>Boards save online, and you can invite people as editors or viewers to plan together.</span></p>
         </div>
         <div class="caps" id="caps"></div>
@@ -918,11 +1378,22 @@ dialog[open]::backdrop{animation:jasIn .3s ease}
     <section class="lsec alt" id="features">
       <div class="wrap">
         <div class="lsec-h">
-          <span class="eyebrow">Modes</span>
-          <h2>Two ways to work</h2>
-          <p>Notes Workspace is for planning on a board. College Recon brings in your Google Classroom deadlines.</p>
+          <h2>Pick how you want to plan</h2>
+          <p>Notes Workspace and College Recon are ready to use today. Travel and Business planners are on the way.</p>
         </div>
         <div class="fgrid" id="feature-grid"></div>
+      </div>
+    </section>
+
+    <section class="lsec" id="help">
+      <div class="wrap">
+        <div class="lsec-h"><h2>Need help getting started?</h2></div>
+        <div class="help">
+          <a class="help-card" href="tutorial.html"><b>How to use JAS</b><span>A step-by-step guide with pictures</span></a>
+          <button class="help-card" data-open-notes><b>Your boards</b><span>Open a board or make a new one</span></button>
+          <button class="help-card" data-goto="recon"><b>College Recon</b><span>See your Google Classroom deadlines</span></button>
+          <button class="help-card" data-goto="feedback"><b>Feedback and reviews</b><span>Tell us what to improve</span></button>
+        </div>
       </div>
     </section>
 
@@ -945,10 +1416,10 @@ dialog[open]::backdrop{animation:jasIn .3s ease}
 <section id="auth" hidden>
   <div class="brand">
     <canvas id="leaves" aria-hidden="true"></canvas>
-    <div class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><use href="#jas-mark"/></svg><svg class="word" viewBox="0 0 102 44" aria-hidden="true"><use href="#jas-word" width="102" height="44"/></svg><span class="sr">JAS</span></div>
+    <div class="auth-top"><div class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><use href="#jas-mark"/></svg><svg class="word" viewBox="0 0 102 44" aria-hidden="true"><use href="#jas-word" width="102" height="44"/></svg><span class="sr">JAS</span></div><button class="ibtn theme-ibtn" data-theme-toggle aria-label="Switch to dark mode"><span class="tb-ic"><svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></span></button></div>
     <div>
       <span class="pill-tag">✦ JAS Productivity Workspace 2026</span>
-      <h1>Plan anything on one <em>open</em> board.</h1>
+      <h1>Plan anything on one open board.</h1>
       <p>JAS is a visual planning space. Drop sticky notes, connect ideas with arrows, add photos, and keep every trip, business idea, or event plan in one place.</p>
       <ul>
         <li>Travel itineraries and budgets</li>
@@ -1707,7 +2178,7 @@ function featureCard(f){
   return `<article class="fcard${f.lead?' lead':''}">
     <div class="thumb">${f.preview()}</div>
     <div class="fbody">
-      <div class="pills"><span class="pill ${f.status}">${esc(f.statusText)}</span><span class="pill price">${esc(f.price)}</span></div>
+      <div class="pills"><span class="pill ${f.status}">${esc(f.statusText)}</span></div>
       <h3>${esc(f.name)}</h3>
       <p>${esc(f.desc)}</p>
       <div class="factions"><button class="btn ghost" data-learn="${f.id}">Learn more</button>${featureAction(f)}</div>
@@ -1725,27 +2196,35 @@ document.addEventListener('click', e=>{
   const l = e.target.closest('[data-learn]'); if(l) return openFeature(l.dataset.learn);
   const t = e.target.closest('[data-try]'); if(t){ $('#dlg-feature').open && $('#dlg-feature').close(); if(t.dataset.try==='recon'){ if(!me) return showAuth('in'); showScreen('app'); showView('recon'); } else goToBoards(); }
 });
+/* Tools on the About page, grouped so the list reads at a glance. Each group: [icon, title, blurb, [items]] */
+const CAP_ICONS = {
+  create:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',
+  organize:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><path d="M10 6.5h3.5a3 3 0 013 3V14"/>',
+  flow:'<path d="M3 12a9 9 0 0115.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-15.5 6.2L3 16"/><path d="M3 21v-5h5"/>',
+  team:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 015.5 4.8"/>'
+};
 const CAPS = [
-  ['Sticky notes and text','Type ideas on colored notes or add headings anywhere.'],
-  ['Arrows and connectors','Link items. Lines follow when you move things.'],
-  ['Shapes, diagrams and images','Flowchart shapes, ready-made flowcharts, and your own photos.'],
-  ['Draw by hand','Pen, highlighter and eraser in any color.'],
-  ['Tables and charts','Type numbers in a table and see bar, line, pie or summary charts.'],
-  ['Drag, resize, edit','Move anything, change its size, double-click to edit.'],
-  ['Duplicate and delete','Copy a group of notes or clear what you don’t need.'],
-  ['Zoom, pan, fit to screen','Explore a big board, then fit it all back in view.'],
-  ['Undo and redo','Step back and forward through your changes.'],
-  ['Any color','Pick any color for notes, shapes and the board background.'],
-  ['Lock, group and share','Lock notes, move groups together, invite editors or viewers.'],
-  ['Board title and auto-save','Name your board. Changes save automatically.'],
-  ['Work together live','See who is editing, follow their view, and watch changes as they happen.']
+  ['create','Create anything','Put every idea on the board, in whatever form fits it.',
+    ['Sticky notes and text','Shapes, flowcharts and images','Draw by hand: pen, highlighter, eraser','Tables with bar, line and pie charts']],
+  ['organize','Organize it your way','Connect ideas and keep the board tidy as the plan grows.',
+    ['Arrows that follow when you move things','Drag, resize and double-click to edit','Duplicate, delete, lock and group','Any color for notes, shapes and background']],
+  ['flow','Move fast, never lose work','Explore big boards and step back whenever you need to.',
+    ['Zoom, pan and fit to screen','Undo and redo','Board title and auto-save']],
+  ['team','Plan together, live','Invite people and watch the plan come together in real time.',
+    ['Invite editors or viewers','See who is editing','Follow someone’s view']]
 ];
+function capCard([icon,title,blurb,items]){
+  return `<article class="cap cap-${icon}"><span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CAP_ICONS[icon]}</svg></span>
+    <h3>${esc(title)}</h3><p>${esc(blurb)}</p><ul>${items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></article>`;
+}
 function renderLobby(){
   const u = me;
   $('#l-hello').textContent = `Welcome, ${u.name.split(' ')[0]}`;
   if(!$('#hb-svg').innerHTML){ const d=TEMPLATES.find(t=>t.id==='event').build(); $('#hb-svg').innerHTML=thumbSVG(d.items,d.links); }
   $('#feature-grid').innerHTML = FEATURES.map(featureCard).join('');
-  if(!$('#caps').innerHTML) $('#caps').innerHTML = CAPS.map(([b,t])=>`<div class="cap"><b>${esc(b)}</b><span>${esc(t)}</span></div>`).join('');
+  if(!$('#caps').innerHTML) $('#caps').innerHTML = CAPS.map(capCard).join('');
+  if(!$('#uc-board').innerHTML) renderUseCase(ucCurrent);
+  $('#st-templates').textContent = TEMPLATES.filter(t=>t.id!=='blank').length;
   // "Continue where you left off": only for a signed-in user with saved boards in this browser
   const rw=$('#resume-wrap'), boards = u ? loadBoards() : [];
   if(!u || !boards.length){ rw.hidden=true; return; }
@@ -1755,6 +2234,47 @@ function renderLobby(){
   $('#resume-btn').onclick = ()=>openBoard(b.id);
   rw.hidden=false;
 }
+
+/* ---------------- About page: use-case tabs ---------------- */
+const USE_CASES = {
+  travel:{ title:'Plan a trip', desc:'Lay out each day, where you will stay, and what it all costs.', points:['Day-by-day columns','Transport, stays and activities','A budget box that sits beside the plan'], tpl:'travel' },
+  business:{ title:'Shape a business idea', desc:'Put the problem, the customers and the money on one page.', points:['Problem and solution side by side','Customers, costs and income','Launch steps you can move around'], tpl:'business' },
+  event:{ title:'Organize an event', desc:'Start from the event in the middle and branch out to everything it needs.', points:['Venue, food and program','Guest list and budget','Arrows that show what depends on what'], tpl:'event' },
+  school:{ title:'Keep up with school', desc:'College Recon brings your Google Classroom deadlines into one list.', points:['Overdue, today, this week and later','Work you turned in is marked done','Turn a class into a board of notes'], recon:true }
+};
+let ucCurrent='travel';
+function renderUseCase(id){
+  const u=USE_CASES[id]; if(!u) return; ucCurrent=id;
+  $$('.uc-tabs [data-uc]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.uc===id)));
+  $('#uc-title').textContent=u.title; $('#uc-desc').textContent=u.desc;
+  $('#uc-points').innerHTML=u.points.map(t=>`<li>${esc(t)}</li>`).join('');
+  $('#uc-go').textContent = u.recon ? 'Open College Recon' : 'Go to my boards';
+  if(u.recon){ $('#uc-board').innerHTML=ILLUSTRATIONS.recon; }
+  else { const d=TEMPLATES.find(t=>t.id===u.tpl).build(); $('#uc-board').innerHTML=thumbSVG(d.items,d.links); }
+}
+document.addEventListener('click', e=>{ const t=e.target.closest('.uc-tabs [data-uc]'); if(t) renderUseCase(t.dataset.uc); });
+document.addEventListener('keydown', e=>{
+  const t=e.target.closest && e.target.closest('.uc-tabs [data-uc]'); if(!t || !['ArrowLeft','ArrowRight'].includes(e.key)) return;
+  const tabs=[...document.querySelectorAll('.uc-tabs [data-uc]')], i=tabs.indexOf(t), n=tabs[(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length];
+  n.focus(); renderUseCase(n.dataset.uc);
+});
+$('#uc-go').onclick = ()=>{ if(USE_CASES[ucCurrent].recon){ if(!me) return showAuth('in'); showScreen('app'); showView('recon'); } else goToBoards(); };
+
+/* ---------------- Light / dark theme (all pages; the board workspace keeps its dark frame) ---------------- */
+const Theme = {
+  get(){ return document.documentElement.dataset.theme==='dark' ? 'dark' : 'light'; },
+  set(t){
+    document.documentElement.dataset.theme=t;
+    try{ localStorage.setItem('jas_theme', t); }catch(e){}
+    this.sync();
+  },
+  sync(){
+    const dark=this.get()==='dark', label = dark ? 'Switch to light mode' : 'Switch to dark mode';
+    $$('[data-theme-toggle]').forEach(b=>{ b.setAttribute('aria-label',label); b.title=label; const t=b.querySelector('.tb-txt'); if(t) t.textContent = dark ? 'Light mode' : 'Dark mode'; });
+  }
+};
+document.addEventListener('click', e=>{ if(e.target.closest('[data-theme-toggle]')) Theme.set(Theme.get()==='dark'?'light':'dark'); });
+Theme.sync();
 
 /* ---------------- Home & templates views ---------------- */
 function showView(v){
